@@ -1,0 +1,24 @@
+div#home { font-size: 2.4em; padding-top: 0.2em !important; }
+div#menu { padding-top: 0.8em !important; }
+div#menu ul { padding-left: 0 !important;  font-size: 1.8em; }
+div#menu ul li { list-style: none; display: inline; padding: 0.2em;}
+div#main {
+    background-color: #FFFFFF;
+    padding: 10px;
+    border: 1px solid #DDD;
+}
+
+div#featured h3 { font-style: italic; font-family: times; font-weight: bold; }
+div.inline-label { padding: 10px 0 0 0; }
+.no-margin { margin: 0; }
+
+body, html { background-color: #F8F8FF; }
+a {
+    text-decoration: none;
+    color:  #593E1A;
+}
+a:visited { color:  #9B4A12; }
+a:hover { text-decoration: underline; color: #A52A2A; }
+
+input { font-size: 1.6em; padding: 0.2em;}
+select { padding: 5px; }

@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+{% block title %}Words{% endblock %}
+{% block content %}
+  <div class="clearfix">  
+    <div class="span-18">
+      <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
+    </div>
+    <div class="right">
+      <a href="{{ url_for("view_word", word_data=word.word) }}">Read-only mode</a>
+    </div>
+  </div>
+  {% for word_part in speech_parts %}
+    <div class="clearfix">
+      <div class="span-4">
+	<h2 class="no-margin">{{ word_part.part.label }}</h2>
+      </div>
+      <div class="span-4" style="padding: 9px 0;"><a href="">+ Add to {{ word_part.part.label|lower }} types</a></div>
+      <div class="span-4" style="padding: 9px 0;"><a href="">+ Add tag</a></div>
+      <div class="span-6 last">
+	<div class="clearfix">
+	  
+	</div>
+	<div class="clearfix">
+
+	</div>
+      </div>
+    </div>
+    <div class="clearfix">
+
+      <ul>
+	{% for definition in word_part.word.definitions(word_part.part_id) %}
+	  {% if not request.view_args.definition_data == definition.id %}
+	    <li>
+	      {{ definition.definition }}
+	      <div class="right">
+		<a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
+	      </div>
+	    </li>
+	    <ol>
+	      {% for usage_example in definition.usage_examples %}
+		<li>
+		  <em>{{ usage_example.sentence }}</em>
+		</li>
+	      {% endfor %}
+	    </ol>
+	  {% else %}
+	    <li>
+	    <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
+	      {{ definition_form.part(value=word_part.part_id) }}
+	      {{ definition_form.definition_id(value=definition.id) }}
+	      <div class="clearfix">
+		<div class="span-20">
+		  <div class="span-15">
+		    <label>{{ definition_form.definition.label }}</label>
+		    {{ definition_form.definition(class="span-15", value=definition.definition) }}
+		  </div>
+		  
+		  <div class="prepend-15">
+		    <label>{{ usage_form.sentence.label }}</label>
+		    <br />
+		    {% for usage_example in definition.usage_examples %}
+		      {{ usage_form.sentence.append_entry(usage_example.sentence) }}
+		      {{ usage_form.sentence_id.append_entry(usage_example.id) }}
+		    {% endfor %}
+		    {{ usage_form.sentence.append_entry() }}
+		  </div>
+		</div>
+	      </div>
+	      <div class="clearfix">
+		<div class="clearfix">
+		  <div class="span-2"> {{ definition_form.submit(value="Update") }}</div>
+		</div>
+		<a href="">+ Add definition</a><br />
+	      </div>
+	      </form>
+	      </li>
+	    {% endif %}
+
+	{% endfor %}
+      </ul>
+    </div>
+    <div {% if request.view_args.definition_data %}style="display:none;"{% endif %}>
+      <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
+	{{ definition_form.part(value=word_part.part_id) }}
+	<div class="clearfix">
+	  <div class="span-20">
+	    <div class="span-15">
+	      <label>{{ definition_form.definition.label }}</label>
+	      {{ definition_form.definition(class="span-15") }}
+	    </div>
+	    
+	    <div class="prepend-15">
+	      <label>{{ usage_form.sentence.label }}</label>
+	      <br />
+	      {{ usage_form.sentence.append_entry() }}
+	      {{ usage_form.sentence.append_entry() }}
+	    </div>
+	  </div>
+	</div>
+	<div class="clearfix">
+	  <div class="clearfix">
+	    <div class="span-2"> {{ definition_form.submit }}</div>
+	  </div>
+	  <a href="">+ Add definition</a><br />
+	</div>
+      </form>
+    </div>
+
+  {% endfor %}
+
+  <div class="prepend-14">
+    <form action="{{ url_for("edit_word", word_data=word.word) }}" method="POST">
+      {{ speech_part_form.csrf }}
+      <div class="clearfix">
+	<div class="right">
+	  <div class="span-3 inline-label"><label>Add part of speech</label></div>
+	  {{ speech_part_form.part(class="span-4") }}
+	  <div class="span-1">{{ speech_part_form.submit }}</div>
+	</div>
+      </div>
+      <div  class="clearfix">
+	{% if speech_part_form.errors %}
+	  <div class="notice">
+	    {% for field_errors in speech_part_form.errors if field_errors %}
+	      {{ speech_part_form.errors[field_errors][0] }}<br />
+	    {% endfor %}
+	  </div>
+	{% endif %}
+      </div>
+    </form>
+  </div>
+      
+  {% include "dictionary/_words_display.html" %}
+      
+{% endblock %}
+
