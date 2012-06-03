@@ -4,7 +4,7 @@
   <h1>Search Words</h1>
   
   <form action="{{ url_for("search_words") }}" method="POST">
-    {{ search_form.csrf }}{# {{ form.csrf }} #}
+    {{ search_form.csrf_token }}{# {{ form.csrf }} #}
     <div class="clearfix">
     {{ with_errors(form.word) }}
     </div>
