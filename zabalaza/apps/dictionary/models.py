@@ -2,8 +2,10 @@ import datetime
 
 from zabalaza import db
 
+from zabalaza.utils.history_meta import Versioned, versioned_session
 
-class Word(db.Model):
+
+class Word(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(1000))
     created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now)
@@ -20,7 +22,7 @@ class Word(db.Model):
         return '<Word %r>' % self.word
     
 
-class Part(db.Model):
+class Part(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1000))
     label = db.Column(db.String(1000))
@@ -35,13 +37,13 @@ class Part(db.Model):
         return '<Part of speech %r>' % self.label
 
 
-class Definition(db.Model):
+class Definition(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     definition = db.Column(db.Text)
     word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
     part_id = db.Column(db.Integer, db.ForeignKey('part.id'))
     
-    usage_examples = db.relationship('Usage')
+
     word = db.relationship("Word")
     part = db.relationship("Part")
 
@@ -55,7 +57,7 @@ class Definition(db.Model):
         return '<Definition %r>' % self.definition
 
 
-class Usage(db.Model):
+class Usage(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     definition_id = db.Column(db.Integer, db.ForeignKey('definition.id'))
     sentence = db.Column(db.Text)
@@ -70,8 +72,10 @@ class Usage(db.Model):
     def __repr__(self):
         return '<Sentence %r>' % self.definition_id
 
+Definition.usage_examples = db.relationship('Usage')
 
-class WordPart(db.Model):
+
+class WordPart(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey('word.id'),
                         primary_key=True)
@@ -93,7 +97,7 @@ class WordPart(db.Model):
     def __repr__(self):
         return '<Word part of speech %r>' % self.word_id
 
-class Relation(db.Model):
+class Relation(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     part_id = db.Column(db.Integer, db.ForeignKey('part.id'),
                         unique=True)
@@ -112,7 +116,7 @@ class Relation(db.Model):
 
 
 
-class WordRelation(db.Model):
+class WordRelation(Versioned, db.Model):
     """Relationships between words `plural, common noun, past tense, simile,
     direct translation, ...)` of a word (word_id_1).
     """

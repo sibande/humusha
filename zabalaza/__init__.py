@@ -1,5 +1,8 @@
 from flask import Flask
-from flaskext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, Session
+
+from zabalaza.utils.history_meta import versioned_session
+
 
 app = Flask(__name__)
 
@@ -19,3 +22,6 @@ import zabalaza.apps.dictionary.views
 @app.errorhandler(404)
 def page_not_found(error):
     return 'This page does not exist', 404
+
+
+versioned_session(Session)
