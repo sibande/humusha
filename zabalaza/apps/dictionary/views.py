@@ -14,7 +14,7 @@ def words():
     ctx = {
         'words': words,
         'search_form': SearchForm(),
-        }
+    }
     return render_template('dictionary/words.html', **ctx)
 
 
@@ -23,9 +23,9 @@ def view_word(word_data):
     word = Word.query.filter_by(word = word_data).first()
     if word is None:
         abort(404)
+    speech_parts = WordPart.query.join('part').filter(WordPart.word_id==word.id)\
+        .filter(Part.parent_id == None)
 
-    
-    speech_parts = WordPart.query.filter_by(word_id=word.id)
     
     words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
 
@@ -34,7 +34,7 @@ def view_word(word_data):
         'speech_parts': speech_parts,
         'words': words,
         'search_form': SearchForm(),
-        }
+    }
     return render_template('dictionary/view_word.html', **ctx)
 
 
@@ -44,10 +44,15 @@ def edit_word(word_data, definition_data=None):
     word = Word.query.filter_by(word = word_data).first()
     if word_data is None:
         pass
-    speech_parts = WordPart.query.filter_by(word_id=word.id)
+
+    speech_parts = WordPart.query.join('part').filter(WordPart.word_id==word.id)\
+        .filter(Part.parent_id == None)
     
     speech_part_form = SpeechPartForm()
-    speech_part_form.generate_choices(word.id)
+
+    speech_part_form.word_id = word.id
+    # speech_part_form.set_word(word.id)
+
     definition_form = DefinitionForm()
     usage_form = UsageForm()
 
@@ -67,7 +72,7 @@ def edit_word(word_data, definition_data=None):
         'definition_form': definition_form,
         'speech_part_form': speech_part_form,
         'search_form': SearchForm(),
-        }
+    }
     return render_template('dictionary/edit_word.html', **ctx)
 
 
@@ -154,7 +159,7 @@ def add_words(form_class=WordForm):
         'form': form,
         'words': words,
         'search_form': SearchForm(),
-        }
+    }
     
     return render_template('dictionary/add_words.html', **ctx)
 
@@ -182,6 +187,6 @@ def search_words(form_class=SearchForm):
         'form': form,
         'words': words,
         'search_form': form,
-        }
+    }
     
     return render_template('dictionary/search_words.html', **ctx)
