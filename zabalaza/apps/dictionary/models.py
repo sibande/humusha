@@ -137,11 +137,6 @@ class Relation(Versioned, db.Model):
         
         relation_limit = self.limit_ if not self.bidirectional else self.limit_*2
         
-        print '=============================================================='
-        print relation_limit
-        print word_relations_count
-        print word_relations_count < relation_limit
-        print '=============================================================='
         return not word_relations_count < relation_limit;
     
     def __repr__(self):
