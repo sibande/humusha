@@ -1,8 +1,10 @@
+from sqlalchemy import or_
+
 from flaskext.wtf import Form, TextField, Required, SubmitField, \
     ValidationError, SelectField, HiddenField, FieldList, IntegerField
 
 
-from .models import Word, Part, WordPart
+from .models import Word, Part, WordPart, Relation, WordRelation
 
 
 class UniqueWord(object):
@@ -16,6 +18,50 @@ class UniqueWord(object):
         if Word.query.filter_by(word=field.data).count():
             raise ValidationError(self.message)
 
+class RelationPart(object):
+    """This class checks if the specified part can be a word relation."""
+    def __init__(self, message=None):
+        if not message:
+            message = u'This part of speech can not be a relation.'
+        self.message = message
+
+    def __call__(self, form, field):
+        try:
+            part_id = int(field.data)
+        except TypeError:
+            part_id = None
+            
+        if not Relation.query.filter_by(part_id=part_id).count():
+            raise ValidationError(self.message)
+
+
+class RelationLimit(object):
+    """This class checks if added word relations have not reached the limit."""
+    def __init__(self, message=None):
+        if not message:
+            message = u'The maximum word relations have been reached for this '\
+                'word and part of speech.'
+        self.message = message
+
+    def __call__(self, form, field):
+        try:
+            part_id = int(form.part.data)
+        except TypeError:
+            part_id = None
+            
+        relation = Relation.query.filter_by(part_id=part_id).first()
+        if relation is None:
+            raise ValidationError(self.message)
+
+        word_count = WordRelation.query.filter(or_(
+            WordRelation.word_id_1==form.word_id_,
+            WordRelation.word_id_2==form.word_id_)).\
+            filter(WordRelation.relation_id==relation.id).count()
+        
+        if word_count >= relation.limit and relation.limit:
+            raise ValidationError(self.message)
+
+
 class DynamicSelectField(SelectField):
     def __call__(self, parent_id=None,  **kwargs):
         self.generate_choices(parent_id)
@@ -27,7 +73,6 @@ class DynamicSelectField(SelectField):
             (p.id, p.label) for p in Part.query.filter_by(parent_id=parent_id)
             ]
         self.choices = choices
-        
         
     
 
@@ -51,6 +96,23 @@ class WordForm(Form):
     word = TextField(u'Word', validators=[
             Required(), UniqueWord()])
     submit = SubmitField(u'Add')
+
+
+class WordRelationForm(Form):
+    word = FieldList(TextField(u'Word', validators=[
+                Required(), RelationLimit()]))
+    word_relation = FieldList(HiddenField(u'Relation', validators=[]))
+    part = HiddenField(u'Part', validators=[RelationPart()])
+    submit = SubmitField(u'Add')
+    
+    @property
+    def word_id(self):
+        return self.word_id_
+
+    @word_id.setter
+    def word_id(self, value):
+        self.word_id_ = value
+
 
 class DefinitionForm(Form):
     definition = TextField(u'Definition', validators=[])

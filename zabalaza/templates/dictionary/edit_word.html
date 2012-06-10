@@ -5,7 +5,7 @@
     <div class="span-18">
       <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
     </div>
-    <div class="right">
+    <div class="caps right">
       <a href="{{ url_for("view_word", word_data=word.word) }}">Read-only mode</a>
     </div>
   </div>
@@ -14,10 +14,12 @@
       <div class="span-4">
 	<h2 class="no-margin">{{ word_part.part.label }}</h2>
       </div>
-      <div class="span-6" style="padding: 9px 0;">
+      <div class="span-6" style="padding: 0px 0;">
         <div  class="clearfix">
+          {#
           <a href="">+ Add to {{ word_part.part.label|lower }} types</a>
           <br />
+          #}
           <form action="{{ url_for("edit_word", word_data=word.word) }}" method="POST">
             {{ speech_part_form.csrf_token }}
             {{ speech_part_form.part(parent_id=word_part.part.id, class="span-4") }}
@@ -61,19 +63,78 @@
 
     <div class="clearfix">
       {% for part_type in word_part.part_types %}
-        <h3>{{ part_type.part.label }}</h3>
+        <div class="clearfix">
+          <div class="span-6" style="padding-top:14px;"><h3>{{
+          part_type.part.label }}</h3></div>
+          {% if part_type.part.relation.part_id %}
+            <div class="span-2" style="padding-top:16px;">
+              of word(s)
+            </div>
+            <div class="{% if part_type.part.relation.limit_reached(word.id) and not request.view_args.part_data == part_type.part.id %}hide{% endif %}">
+              <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST">
+                {{ word_relation_form.csrf_token }}
+                <div class="hide relation-limit">{{ part_type.part.relation.limit }}</div>
+                <div class="span-8 last">
+                  {% if request.view_args.part_data == part_type.part.id %}
+                    {# Edit type of speech related words #}
+                    
+                    {% for word_relation in word.relations(part_type.part.id) %}
+                      {{ word_relation_form.word_relation.append_entry(word_relation.id) }}
+                      {% if not word_relation.word_id_1 == word.id %}
+                        {{ word_relation_form.word.append_entry(word_relation.word_1.word) }}
+                      {% else %}
+                        {{ word_relation_form.word.append_entry(word_relation.word_2.word) }}
+                      {% endif %}
+                    {% endfor %}
+                    {# 0 for unrestricted word relations #}
+                    {% if not part_type.part.relation.limit or loop.index < part_type.part.relation.limit %}
+                      {{ word_relation_form.word.append_entry() }}
+                    {% endif %}
+                  {% else %}
+                    {{ word_relation_form.word.append_entry() }}
+                  {% endif %}
+                </div>
+                <div class="span-1" style="padding-top:3px;">
+                  {{ word_relation_form.submit }}
+                </div>
+                {{ word_relation_form.part(value=part_type.part.id) }}
+              </form>
+            </div>
+            <div class="span-4" style="padding:16px 0 0 10px;">
+              {% if not request.view_args.part_data == part_type.part.id %}
+                {# Type of speech related words #}
+                {% for word_relation in word.relations(part_type.part.id) %}
+                  <div class="span-2">                  
+                    {% if not word_relation.word_id_1 == word.id %}
+                      {{ word_relation.word_1.word }}
+                    {% else %}
+                      {{ word_relation.word_2.word }}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div class="span-1 right" style="padding:16px 0 0 10px;">
+              <a href="{{ url_for("edit_word", word_data=word.word, part_data=part_type.part.id) }}">edit</a>
+            </div>
+          {% endif %}
+
+        </div>
       {% endfor %}
     </div>
 
     <div class="clearfix">
-      <ul>
-	{% for definition in word_part.word.definitions(word_part.part_id) %}
-	  {% if not request.view_args.definition_data == definition.id %}
+
+      {% for definition in word_part.word.definitions(word_part.part_id) %}
+        <div class="span-21">
+          <ul>
+            {% if not request.view_args.definition_data == definition.id %}
 	    <li>
 	      {{ definition.definition }}
-	      <div class="right">
+{#	      <div class="right">
 		<a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
 	      </div>
+#}
 	    </li>
 	    <ol>
 	      {% for usage_example in definition.usage_examples %}
@@ -89,12 +150,12 @@
 	      {{ definition_form.definition_id(value=definition.id) }}
 	      <div class="clearfix">
 		<div class="span-20">
-		  <div class="span-15">
+		  <div class="span-12">
 		    <label>{{ definition_form.definition.label }}</label>
-		    {{ definition_form.definition(class="span-15", value=definition.definition) }}
+		    {{ definition_form.definition(class="span-12", value=definition.definition) }}
 		  </div>
 		  
-		  <div class="prepend-15">
+		  <div class="prepend-12">
 		    <label>{{ usage_form.sentence.label }}</label>
 		    <br />
 		    {% for usage_example in definition.usage_examples %}
@@ -109,26 +170,33 @@
 		<div class="clearfix">
 		  <div class="span-2"> {{ definition_form.submit(value="Update") }}</div>
 		</div>
+                {#
 		<a href="">+ Add definition</a><br />
+                #}
 	      </div>
 	      </form>
 	      </li>
 	    {% endif %}
-
+          </ul>
+          </div>
+          <div class="span-1 right">
+            <a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
+          </div>
+	  
 	{% endfor %}
-      </ul>
+
     </div>
     <div {% if request.view_args.definition_data %}style="display:none;"{% endif %}>
       <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
 	{{ definition_form.part(value=word_part.part_id) }}
 	<div class="clearfix">
-	  <div class="span-20">
-	    <div class="span-15">
+	  <div class="span-15">
+	    <div class="span-12">
 	      <label>{{ definition_form.definition.label }}</label>
-	      {{ definition_form.definition(class="span-15") }}
+	      {{ definition_form.definition(class="span-12") }}
 	    </div>
 	    
-	    <div class="prepend-15">
+	    <div class="prepend-12">
 	      <label>{{ usage_form.sentence.label }}</label>
 	      <br />
 	      {{ usage_form.sentence.append_entry() }}
@@ -140,7 +208,9 @@
 	  <div class="clearfix">
 	    <div class="span-2"> {{ definition_form.submit }}</div>
 	  </div>
+          {#
 	  <a href="">+ Add definition</a><br />
+          #}
 	</div>
       </form>
     </div>

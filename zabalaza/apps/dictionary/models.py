@@ -1,4 +1,5 @@
 import datetime
+from sqlalchemy import or_
 
 from zabalaza import db
 
@@ -17,6 +18,15 @@ class Word(Versioned, db.Model):
     def definitions(self, part_id):
         return Definition.query.filter(Definition.part_id==part_id)\
             .filter(Definition.word_id==self.id)
+
+    def relations(self, part_id):
+        relation = Relation.query.filter(Relation.part_id==part_id).first()
+        if relation is None:
+            return []
+        word_relations = WordRelation.query.filter(
+            or_(WordRelation.word_id_1==self.id, WordRelation.word_id_2==self.id)
+        ).filter(WordRelation.relation_id==relation.id)
+        return word_relations
         
     def __repr__(self):
         return '<Word %r>' % self.word
@@ -32,7 +42,7 @@ class Part(Versioned, db.Model):
         self.name = name
         self.label = label
         self.parent_id = parent_id
-        
+
     def __repr__(self):
         return '<Part of speech %r>' % self.label
 
@@ -43,11 +53,9 @@ class Definition(Versioned, db.Model):
     word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
     part_id = db.Column(db.Integer, db.ForeignKey('part.id'))
     
-
     word = db.relationship("Word")
     part = db.relationship("Part")
 
-    
     def __init__(self, definition, word_id, part_id):
         self.definition = definition
         self.word_id = word_id
@@ -67,7 +75,6 @@ class Usage(Versioned, db.Model):
     def __init__(self, sentence, definition_id):
         self.sentence = sentence
         self.definition_id = definition_id
-        
         
     def __repr__(self):
         return '<Sentence %r>' % self.definition_id
@@ -102,7 +109,7 @@ class Relation(Versioned, db.Model):
     part_id = db.Column(db.Integer, db.ForeignKey('part.id'),
                         unique=True)
     bidirectional = db.Column(db.Boolean)
-    limit = db.Column(db.Integer)
+    limit_ = db.Column(db.Integer)
     
     part = db.relationship("Part", lazy="joined")
 
@@ -110,10 +117,37 @@ class Relation(Versioned, db.Model):
         self.part_id = part_id
         self.bidirectional = bidirectional
         self.limit = limit
+
+    @property
+    def limit(self):
+        return self.limit_ if not self.bidirectional else self.limit_*2
+
+    @limit.setter
+    def limit(self, value):
+        self.limit_ = value
+
+    def limit_reached(self, word_id):
+        if not self.limit_:
+            return False
+        word_relations_count = WordRelation.query\
+            .filter(WordRelation.relation_id==self.id)\
+            .filter(or_(
+                WordRelation.word_id_1==word_id, WordRelation.word_id_2==word_id
+            )).count()
+        
+        relation_limit = self.limit_ if not self.bidirectional else self.limit_*2
+        
+        print '=============================================================='
+        print relation_limit
+        print word_relations_count
+        print word_relations_count < relation_limit
+        print '=============================================================='
+        return not word_relations_count < relation_limit;
     
     def __repr__(self):
         return '<Relation %r>' % self.part_id
 
+Part.relation = db.relationship("Relation", uselist=False)
 
 
 class WordRelation(Versioned, db.Model):

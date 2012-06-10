@@ -4,8 +4,9 @@ from werkzeug.datastructures import MultiDict
 from zabalaza import app, db
 
 from .forms import WordForm, SearchForm, SpeechPartForm, DefinitionForm, \
-    UsageForm
-from .models import Word, WordPart, Definition, Usage, Part
+    UsageForm, WordRelationForm
+from .models import Word, WordPart, Definition, Usage, Part, Relation,\
+    WordRelation
 
 
 @app.route('/words/')
@@ -39,8 +40,9 @@ def view_word(word_data):
 
 
 @app.route('/words/edit/<word_data>/', methods=['GET', 'POST'])
+@app.route('/words/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
 @app.route('/words/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
-def edit_word(word_data, definition_data=None):
+def edit_word(word_data, definition_data=None, part_data=None):
     word = Word.query.filter_by(word = word_data).first()
     if word_data is None:
         pass
@@ -55,6 +57,7 @@ def edit_word(word_data, definition_data=None):
 
     definition_form = DefinitionForm()
     usage_form = UsageForm()
+    word_relation_form = WordRelationForm()
 
     words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
 
@@ -69,6 +72,7 @@ def edit_word(word_data, definition_data=None):
         'speech_parts': speech_parts,
         'usage_form': usage_form,
         'words': words,
+        'word_relation_form': word_relation_form,
         'definition_form': definition_form,
         'speech_part_form': speech_part_form,
         'search_form': SearchForm(),
@@ -136,6 +140,59 @@ def add_definition(word_data):
 
     return redirect(url_for('edit_word', word_data=word_data))
 
+
+@app.route('/words/edit/relation/<word_data>', methods=['POST'])
+def word_relation(word_data, form_class = WordRelationForm):
+    word_relation_form = form_class()
+    
+    word_1 = Word.query.filter(Word.word==word_data).first()
+    if word_1 is None:
+        return redirect(url_for('edit_word', word_data=word_data))
+
+    word_relation_form.word_id = word_1.id
+
+    validates = word_relation_form.validate_on_submit()
+    
+    for word_index, word_data_2 in enumerate(word_relation_form.word.data):
+        word_relation = None
+        if word_index < len(word_relation_form.word_relation.data): # Update
+            word_relation_data = int(word_relation_form.word_relation.data[word_index])
+        elif not validates: # Relation limit reached
+            continue
+        else: # New word relation
+            word_relation_data = None
+
+        word_2 = Word.query.filter(Word.word==word_data_2).first()
+        if word_2 is None:
+            word_2 = Word(word=word_data_2)
+            db.session.add(word_2)
+            db.session.commit()
+            flash(u'Relation word was added.', 'success')
+        
+        if word_relation_data is not None:
+            word_relation = WordRelation.query\
+                .filter(WordRelation.id==word_relation_data).first()
+            if word_relation is None:
+                continue
+            word_relation.word_id_1=word_1.id
+            word_relation.word_id_2=word_2.id
+        elif validates:
+            relation = Relation.query.filter(Relation.part_id==part_id).first()
+            
+            word_relation = WordRelation(
+                word_id_1=word_1.id, word_id_2=word_2.id, relation_id=relation.id,
+            )
+        if word_relation is not None:
+            flash(u'Word is now related to the specified word.', 'success')
+            db.session.add(word_relation)
+            db.session.commit()
+        else:
+            flash(u'The relationship was rejected.', 'error')
+    else:
+        if not word_relation_form.word.data:
+            flash(u'The relationship was rejectedd.', 'error')
+
+    return redirect(url_for('edit_word', word_data=word_data))
 
 
 @app.route('/words/add', methods=['GET', 'POST'])
