@@ -30,12 +30,22 @@
 	    {% include "_global_search.html" %}
 	  </div>
 	</div>
+
+        {% macro render_language_form(language_type) %}
+        <form action="{{ url_for("switch_language", next=request.url) }}" id="switch-language-form" method="POST">
+          <select name="{{ language_type }}" class="span-3">
+            {% for language in languages %}
+              <option value="{{ language.code }}" {% if language.id == session[language_type] %}selected="selected"{% endif %}>
+                {{ language.label }}
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+        {% endmacro %}
+
 	<div id="language" class="span-5 last">
 	  <div class="right">
-	    <select class="span-3">
-	      <option>SiSwati</option>
-	      <option>English</option>
-	    </select>
+            {{ render_language_form("app_language") }}
 	  </div>
 	</div>
       </div>
@@ -83,11 +93,6 @@
     </div>
     <script src="{{ url_for('static', filename='js/jquery-1.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.easing.1.3.js') }}"></script>
-    <script type="text/javascript">
-      (function($) {
-      $("form input[type=text]:first").focus();
-      $("div#flashes div").fadeOut(7000, "easeOutBack");
-      })(jQuery);
-    </script>
+    <script src="{{ url_for('static', filename='js/default.js') }}"></script>
   </body>
 </html>
