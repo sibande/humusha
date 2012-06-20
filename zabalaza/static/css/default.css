@@ -1,4 +1,11 @@
-div#home { font-size: 2.4em; padding-top: 0.2em !important; }
+@font-face {
+  font-family: 'Lobster';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Lobster'), url('/static/fonts/Lobster.woff') format('woff');
+}
+
+div#home { font-size: 2.4em; padding-top: 0.2em !important; font-family: 'Lobster', cursive !important; }
 div#menu { padding-top: 0.8em !important; }
 div#menu ul { padding-left: 0 !important;  font-size: 1.8em; }
 div#menu ul li { list-style: none; display: inline; padding: 0.2em;}
