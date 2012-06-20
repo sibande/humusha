@@ -1,5 +1,8 @@
+
 import datetime
 from sqlalchemy import or_
+from sqlalchemy.orm import aliased, joinedload, mapper
+from flask import session
 
 from zabalaza import db
 
@@ -19,29 +22,56 @@ class Word(Versioned, db.Model):
         return Definition.query.filter(Definition.part_id==part_id)\
             .filter(Definition.word_id==self.id)
 
-    def relations(self, part_id):
+    def relations(self, part_id, definition_id=None):
         relation = Relation.query.filter(Relation.part_id==part_id).first()
         if relation is None:
             return []
         word_relations = WordRelation.query.filter(
             or_(WordRelation.word_id_1==self.id, WordRelation.word_id_2==self.id)
-        ).filter(WordRelation.relation_id==relation.id)
+        ).filter(WordRelation.relation_id==relation.id)\
+        .filter(WordRelation.definition_id==definition_id)
         return word_relations
         
     def __repr__(self):
         return '<Word %r>' % self.word
+
+
+class Language(Versioned, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(1000))
+    label = db.Column(db.String(1000))
+    code = db.Column(db.String(20))
     
+    def __init__(self, name, label, code):
+        self.name = name
+        self.code = code
+
+    def __repr__(self):
+        return '<Language %r (%r)>' % self.name, self.code
+
 
 class Part(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1000))
     label = db.Column(db.String(1000))
     parent_id = db.Column(db.Integer, db.ForeignKey('part.id'))
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
 
+    parent = db.relationship("Part", remote_side=[id])
+    
     def __init__(self, name, label, parent_id):
         self.name = name
         self.label = label
         self.parent_id = parent_id
+        
+    @staticmethod
+    def thesaurus_parts():
+        parent_part = aliased(Part)
+        parts = Part.query.join(parent_part, Part.parent)\
+            .filter(Part.parent_id == parent_part.id)\
+            .filter(parent_part.name=='thesaurus')\
+            .filter(parent_part.language_id==session['language'])
+        return parts
 
     def __repr__(self):
         return '<Part of speech %r>' % self.label
@@ -63,6 +93,19 @@ class Definition(Versioned, db.Model):
         
     def __repr__(self):
         return '<Definition %r>' % self.definition
+
+
+class Etymology(Versioned, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
+    etymology = db.Column(db.Text)
+    
+    def __init__(self, word_id, etymology):
+        self.word_id = word_id
+        self.etymology = etymology
+        
+    def __repr__(self):
+        return '<Etymology %r>' % self.etymology[0:50]
 
 
 class Usage(Versioned, db.Model):
@@ -156,6 +199,7 @@ class WordRelation(Versioned, db.Model):
                           primary_key=True)
     relation_id = db.Column(db.Integer, db.ForeignKey('relation.id'),
                         primary_key=True)
+    definition_id = db.Column(db.Integer, db.ForeignKey('definition.id'))
 
     word_1 = db.relationship("Word",
                              primaryjoin=Word.id==word_id_1,
@@ -176,28 +220,62 @@ class WordRelation(Versioned, db.Model):
 
 
 def zabalaza_pre_populate():
-    from fixtures import data
-    
-    def add_row(data, parent_id = None):
+    from .fixtures.languages import data
+
+    def add_part_row(data, parent_id=None, language_id=None):
         part = Part.query.filter_by(name =data['fields']['name'])\
-            .filter_by(parent_id=parent_id).first()
+            .filter_by(parent_id=parent_id)\
+            .filter_by(language_id=language_id).first()
         if part is None:
             part = Part(
                 name = data['fields']['name'],
                 label = data['fields']['label'],
-                parent_id = parent_id,
+                parent_id = parent_id
             )
+            part.language_id = language_id
         else:
             part.label = data['fields']['label']
-
+            part.language_id = language_id
         db.session.add(part)
         db.session.commit()
 
         for i, row in enumerate(data['children']):
-            add_row(row, parent_id = part.id)
+            add_part_row(row, parent_id=part.id, language_id=language_id)
 
+    _languages = dict()
     for i, row in enumerate(data):
-        add_row(row)
+        language = Language.query.filter_by(name=row['fields']['name'])\
+            .first()
+        if language is None:
+            language = Language(
+                name = row['fields']['name'],
+                label = row['fields']['label'],
+                code = row['fields']['code'],
+            )
+        else:
+            language.label = row['fields']['label']
+        db.session.add(language)
+        db.session.commit()
+        _languages[language.code] = language.id
+
+    for code, language_id in _languages.iteritems():
+        print '.fixtures.parts_{0}'.format(code)
+        try:
+            _temp_import = __import__('fixtures.parts_{0}'.format(code),
+                                      globals(), locals(), ['data'], -1)
+            data = _temp_import.data
+        except ImportError:
+            continue
+        
+        for i, row in enumerate(data):
+            add_part_row(row, language_id=language_id)
+            
+
+    print '%r' % _languages
+    return '%r' % _languages
+
+
+    
             
 db.zabalaza_pre_populate = zabalaza_pre_populate
 

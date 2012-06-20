@@ -1,8 +1,12 @@
 {% extends "layout.html" %}
 {% block title %}Words{% endblock %}
 {% block content %}
+  <div class="right">
+    {{ render_language_form("language") }}
+  </div>
+
   <h1>Words</h1>
-  
+
   {% include "dictionary/_words_display.html" %}
 
 {% endblock %}

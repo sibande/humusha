@@ -1,10 +1,11 @@
 from sqlalchemy import or_
 
+from flask import session
 from flaskext.wtf import Form, TextField, Required, SubmitField, \
     ValidationError, SelectField, HiddenField, FieldList, IntegerField
 
 
-from .models import Word, Part, WordPart, Relation, WordRelation
+from .models import Word, Part, WordPart, Relation, WordRelation, Language
 
 
 class UniqueWord(object):
@@ -69,9 +70,11 @@ class DynamicSelectField(SelectField):
         return super(DynamicSelectField, self).__call__(**kwargs);
 
     def generate_choices(self, parent_id=None):
-        choices = [
-            (p.id, p.label) for p in Part.query.filter_by(parent_id=parent_id)
-            ]
+        parts = Part.query.filter_by(parent_id=parent_id)
+        if parent_id is None:
+            parts = parts.filter_by(language_id=session['language'])
+        choices = [(p.id, p.label) for p in parts]
+
         self.choices = choices
         
     
@@ -103,6 +106,8 @@ class WordRelationForm(Form):
                 Required(), RelationLimit()]))
     word_relation = FieldList(HiddenField(u'Relation', validators=[]))
     part = HiddenField(u'Part', validators=[RelationPart()])
+    definition_id = HiddenField(u'Definition ID', validators=[])
+
     submit = SubmitField(u'Add')
     
     @property
@@ -157,10 +162,10 @@ class SpeechPartForm(Form):
             parent_id = None
         if not parent_id:
             parent_id = None
-
-        choices = [
-            (p.id, p.label) for p in Part.query.filter_by(parent_id=parent_id)
-            ]
+        parts = Part.query.filter_by(parent_id=parent_id)
+        if parent_id is None:
+            parts = parts.filter_by(language_id=session['language'])
+        choices = [(p.id, p.label) for p in parts]
         self.part.choices = choices
 
         return super(SpeechPartForm, self).validate();

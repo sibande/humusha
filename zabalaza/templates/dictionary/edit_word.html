@@ -5,8 +5,12 @@
     <div class="span-18">
       <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
     </div>
-    <div class="caps right">
-      <a href="{{ url_for("view_word", word_data=word.word) }}">Read-only mode</a>
+    <div class="right">
+      <div class="caps">
+        <a href="{{ url_for("view_word", word_data=word.word) }}">Read-only mode</a>
+      </div>
+      <br />
+      {{ render_language_form("language") }}
     </div>
   </div>
   {% for word_part in speech_parts %}
@@ -216,6 +220,133 @@
     </div>
 
   {% endfor %}
+  
+  <div class="clearfix">
+    {% for thesaurus_part in thesaurus_parts %}
+      <div class="clearfix">
+        <div class="clearfix">
+          <div class="span-18">
+            <h2 class="no-margin">{{ thesaurus_part.label }}</h2>
+          </div>
+        </div>
+        <div class="clearfix">
+          {% for definition in word.definitions(thesaurus_part.id) %}
+            <div class="span-20">
+              <ul>
+                {% if not request.view_args.definition_data == definition.id %}
+	          <li>
+	            {{ definition.definition }}
+                  </li>
+                {% else %}
+	          <li>
+                    <div class="clearfix">
+                      <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
+                        {{ definition_form.definition_id(value=definition.id) }}
+                        <div class="span-16">
+                          {{ definition_form.part(value=thesaurus_part.id) }}
+                          {{ definition_form.definition(class="span-16", value=definition.definition) }}
+                        </div>
+
+                        <div class="span-2">
+                          {{ definition_form.submit(value="Update") }}
+                        </div>
+                      </div>
+                    </form>
+                  </li>
+                {% endif %}
+                <ol style="padding-left: 0px;">
+                  <div class="clearfix">
+                  {% for word_relation in word.relations(thesaurus_part.id, definition.id) %}
+                    <div class="span-2">
+                      {% if not word_relation.word_id_1 == word.id %}
+                        {{ word_relation.word_1.word }}
+                      {% else %}
+                        {{ word_relation.word_2.word }}
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                  </div>
+                  <div class="clearfix">
+                    <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST">
+                      {{ word_relation_form.csrf_token }}
+                      {{ word_relation_form.part(value=thesaurus_part.id) }}
+                      {{ definition_form.definition_id(value=definition.id) }}
+                    <div class="span-7">
+                      {{ word_relation_form.word.append_entry() }}<br />
+                    </div>
+                    <div class="span-2">
+                      {{ word_relation_form.submit }}
+                    </div>
+                    </form>
+                  </div>
+
+
+                </ol>
+              </ul>
+            </div>
+            <div class="span-1 right">
+              <a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
+            </div>
+
+
+          {% endfor %}
+        </div>
+        <div class="clearfix">
+          {% for word_relation in word.relations(thesaurus_part.id) %}
+            <div class="span-2">
+              {% if not word_relation.word_id_1 == word.id %}
+                {{ word_relation.word_1.word }}
+              {% else %}
+                {{ word_relation.word_2.word }}
+                {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+              
+               
+
+
+        <div class="clearfix">
+          <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST">
+            {{ word_relation_form.csrf_token }}
+            {{ word_relation_form.part(value=thesaurus_part.id) }}
+            <div class="span-7">
+              {{ word_relation_form.word.append_entry() }}<br />
+            </div>
+            <div class="span-2">
+              {{ word_relation_form.submit }}
+            </div>
+          </form>
+        </div>
+        <div class="clearfix">
+          <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
+            <div class="span-18">
+              {{ definition_form.part(value=thesaurus_part.id) }}
+              {{ definition_form.definition(class="span-18") }}
+            </div>
+            <div class="span-2">
+              {{ definition_form.submit }}
+            </div>
+          </form>
+        </div>
+        <!-- <div class="span-18"> -->
+          <!-- <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST"> -->
+          <!--   {{ word_relation_form.csrf_token }} -->
+          <!--   <div class="clearfix"> -->
+          <!--     <strong>Words</strong> -->
+          <!--   </div> -->
+            <!-- {{ word_relation_form.word.append_entry() }}<br /> -->
+            <!-- {{ word_relation_form.word.append_entry() }}<br /> -->
+            <!-- {{ word_relation_form.part(value=thesaurus_part.id) }}           -->
+            <!-- <div class="clearfix"> -->
+            <!--   {{ word_relation_form.submit }} -->
+            <!-- </div> -->
+        <!--   </div> -->
+        <!-- </form> -->
+      <!-- </div> -->
+    {% endfor %}
+  </div>
+
 
   <div class="prepend-14">
     <form action="{{ url_for("edit_word", word_data=word.word) }}" method="POST">

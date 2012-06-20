@@ -1,4 +1,5 @@
-from flask import render_template, flash, request, redirect, url_for, abort
+from flask import render_template, flash, request, redirect, url_for, abort,\
+    session
 from werkzeug.datastructures import MultiDict
 
 from zabalaza import app, db
@@ -12,6 +13,7 @@ from .models import Word, WordPart, Definition, Usage, Part, Relation,\
 @app.route('/words/')
 def words():
     words = Word.query.order_by('created DESC').limit(600).all()
+    
     ctx = {
         'words': words,
         'search_form': SearchForm(),
@@ -25,15 +27,16 @@ def view_word(word_data):
     if word is None:
         abort(404)
     speech_parts = WordPart.query.join('part').filter(WordPart.word_id==word.id)\
-        .filter(Part.parent_id == None)
-
+        .filter(Part.parent_id==None)
     
     words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
+    thesaurus_parts = Part.thesaurus_parts()
 
     ctx = {
         'word': word,
         'speech_parts': speech_parts,
         'words': words,
+        'thesaurus_parts': thesaurus_parts,
         'search_form': SearchForm(),
     }
     return render_template('dictionary/view_word.html', **ctx)
@@ -49,7 +52,8 @@ def edit_word(word_data, definition_data=None, part_data=None):
 
     speech_parts = WordPart.query.join('part').filter(WordPart.word_id==word.id)\
         .filter(Part.parent_id == None)
-    
+    thesaurus_parts = Part.thesaurus_parts()
+
     speech_part_form = SpeechPartForm()
 
     speech_part_form.word_id = word.id
@@ -71,6 +75,7 @@ def edit_word(word_data, definition_data=None, part_data=None):
         'word': word,
         'speech_parts': speech_parts,
         'usage_form': usage_form,
+        'thesaurus_parts': thesaurus_parts,
         'words': words,
         'word_relation_form': word_relation_form,
         'definition_form': definition_form,
@@ -155,6 +160,15 @@ def word_relation(word_data, form_class = WordRelationForm):
     
     for word_index, word_data_2 in enumerate(word_relation_form.word.data):
         word_relation = None
+        try:
+            part_data = int(word_relation_form.part.data)
+        except ValueError:
+            part_data = None
+        try:
+            print word_relation_form.definition_id.data
+            definition_id_data = int(word_relation_form.definition_id.data)
+        except ValueError:
+            definition_id_data = None
         if word_index < len(word_relation_form.word_relation.data): # Update
             word_relation_data = int(word_relation_form.word_relation.data[word_index])
         elif not validates: # Relation limit reached
@@ -176,12 +190,14 @@ def word_relation(word_data, form_class = WordRelationForm):
                 continue
             word_relation.word_id_1=word_1.id
             word_relation.word_id_2=word_2.id
+            word_relation.definition_id = definition_id_data
         elif validates:
-            relation = Relation.query.filter(Relation.part_id==part_id).first()
+            relation = Relation.query.filter(Relation.part_id==part_data).first()
             
             word_relation = WordRelation(
                 word_id_1=word_1.id, word_id_2=word_2.id, relation_id=relation.id,
             )
+            word_relation.definition_id = definition_id_data
         if word_relation is not None:
             flash(u'Word is now related to the specified word.', 'success')
             db.session.add(word_relation)

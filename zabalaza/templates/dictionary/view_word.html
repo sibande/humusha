@@ -5,9 +5,14 @@
     <div class="span-18">
       <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
     </div>
-    <div class="caps right">
-      <a href="{{ url_for("edit_word", word_data=word.word) }}">Edit mode</a>
+    <div class="right">
+      <div class="caps">
+        <a href="{{ url_for("edit_word", word_data=word.word) }}">Edit mode</a>
+      </div>
+      <br />
+      {{ render_language_form("language") }}
     </div>
+    
   </div>
   {% for word_part in speech_parts %}
     <div class="clearfix">
@@ -64,6 +69,7 @@
 	{% endfor %}
       </ul>
     </div>
+
 {#    <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
       {{ definition_form.part(value=word_part.part_id) }}
       <div class="clearfix">
@@ -88,6 +94,54 @@
     </form>
     #}
   {% endfor %}
+  
+
+  <div class="clearfix">
+      {% for thesaurus_part in thesaurus_parts %}
+        <div class="span-18">
+          <h2 class="no-margin">{{ thesaurus_part.label }}</h2>
+        </div>
+        <div class="clearfix">
+          {% for definition in word.definitions(thesaurus_part.id) %}
+            <div class="span-20">
+              <ul>
+                {% if not request.view_args.definition_data == definition.id %}
+	          <li>
+	            {{ definition.definition }}
+                  </li>
+                {% endif %}
+                <ol style="padding-left: 0px;">
+                  <div class="clearfix">
+                    {% for word_relation in word.relations(thesaurus_part.id, definition.id) %}
+                      <div class="span-2">
+                        {% if not word_relation.word_id_1 == word.id %}
+                          {{ word_relation.word_1.word }}
+                        {% else %}
+                          {{ word_relation.word_2.word }}
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                </ol>
+              </ul>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="clearfix">
+          {# global (not belonging to a definition) part words #}
+          {% for word_relation in word.relations(thesaurus_part.id) %}
+            <div class="span-2">
+              {% if not word_relation.word_id_1 == word.id %}
+                {{ word_relation.word_1.word }}
+              {% else %}
+                {{ word_relation.word_2.word }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+  </div>
+
   
   {#
   <div class="prepend-14">
