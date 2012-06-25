@@ -1,7 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}Add Words{% endblock %}
 {% block content %}
-  <h1>Add Words</h1>
+  <div class="right">
+    {{ render_language_form("language") }}
+  </div>
+
+  <h1>{{ gettext('Add Words') }}</h1>
   
   <form action="{{ url_for("add_words") }}" method="POST">
     {{ form.csrf_token }}

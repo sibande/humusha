@@ -1,5 +1,6 @@
 from flask import render_template, session, request, redirect, flash
 
+from flaskext.babel import gettext, ngettext, lazy_gettext as _
 from zabalaza import app
 from apps.dictionary.forms import WordForm, SearchForm
 from apps.dictionary.models import Language
@@ -20,7 +21,8 @@ def switch_language():
         language = Language.query.filter(Language.code==language_data).first()
         if language is not None:
             session[langauge_type] = language.id
-            flash('Language changed to {0}'.format(language.label), 'success')
+            flash(gettext(u'Language changed to {0}')\
+                      .format(language.label), 'success')
 
     for language_type in ['app_language', 'language']:
         _switch_langauge(language_type)

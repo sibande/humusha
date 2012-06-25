@@ -7,7 +7,7 @@
     </div>
     <div class="right">
       <div class="caps">
-        <a href="{{ url_for("view_word", word_data=word.word) }}">Read-only mode</a>
+        <a href="{{ url_for("view_word", word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
       </div>
       <br />
       {{ render_language_form("language") }}
@@ -28,6 +28,7 @@
             {{ speech_part_form.csrf_token }}
             {{ speech_part_form.part(parent_id=word_part.part.id, class="span-4") }}
             {{ speech_part_form.parent_id(value=word_part.part.id) }}
+            {{ speech_part_form.language_id(value=word.language_id) }}
             <div class="span-1">
               {{ speech_part_form.submit }}
             </div>
@@ -354,8 +355,9 @@
       <div class="clearfix">
 	<div class="right">
 	  <div class="span-3 inline-label"><label>Add part of speech</label></div>
-	  {{ speech_part_form.part(class="span-4") }}
+	  {{ speech_part_form.part(class="span-4", language_id=word.language_id) }}
 	  {{ speech_part_form.parent_id(value=0) }}
+          {{ speech_part_form.language_id(value=word.language_id) }}
 	  <div class="span-1">{{ speech_part_form.submit }}</div>
 	</div>
       </div>

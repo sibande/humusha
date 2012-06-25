@@ -7,7 +7,7 @@
     </div>
     <div class="right">
       <div class="caps">
-        <a href="{{ url_for("edit_word", word_data=word.word) }}">Edit mode</a>
+        <a href="{{ url_for("edit_word", word_data=word.word) }}">{{ gettext('Edit mode') }}</a>
       </div>
       <br />
       {{ render_language_form("language") }}
