@@ -1,6 +1,7 @@
 from flask import render_template, flash, request, redirect, url_for, abort,\
     session
 from werkzeug.datastructures import MultiDict
+from flaskext.babel import gettext, ngettext, lazy_gettext as _
 
 from zabalaza import app, db
 
@@ -30,7 +31,7 @@ def view_word(word_data):
         .filter(Part.parent_id==None)
     
     words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
-    thesaurus_parts = Part.thesaurus_parts()
+    thesaurus_parts = Part.thesaurus_parts(word.language_id)
 
     ctx = {
         'word': word,
@@ -52,7 +53,7 @@ def edit_word(word_data, definition_data=None, part_data=None):
 
     speech_parts = WordPart.query.join('part').filter(WordPart.word_id==word.id)\
         .filter(Part.parent_id == None)
-    thesaurus_parts = Part.thesaurus_parts()
+    thesaurus_parts = Part.thesaurus_parts(word.language_id)
 
     speech_part_form = SpeechPartForm()
 
@@ -69,7 +70,7 @@ def edit_word(word_data, definition_data=None, part_data=None):
         word_part = WordPart(word.id, speech_part_form.part.data)
         db.session.add(word_part)
         db.session.commit()
-        flash(u'The word has been associated with the part of speech.', 'success')
+        flash(gettext(u'The word has been associated with the part of speech.'), 'success')
         
     ctx = {
         'word': word,
@@ -137,11 +138,11 @@ def add_definition(word_data):
                                   definition_id=definition.id)
                     db.session.add(usage)
             db.session.commit()
-            flash(u'Definition added.', 'success')
+            flash(gettext(u'Definition added.'), 'success')
         else:
-            flash(u'Definition not added.', 'error')
+            flash(gettext(u'Definition not added.'), 'error')
     else:
-        flash(u'Definition not added.', 'error')
+        flash(gettext(u'Definition not added.'), 'error')
 
     return redirect(url_for('edit_word', word_data=word_data))
 
@@ -158,6 +159,7 @@ def word_relation(word_data, form_class = WordRelationForm):
 
     validates = word_relation_form.validate_on_submit()
     
+    word_relation = None
     for word_index, word_data_2 in enumerate(word_relation_form.word.data):
         word_relation = None
         try:
@@ -178,10 +180,10 @@ def word_relation(word_data, form_class = WordRelationForm):
 
         word_2 = Word.query.filter(Word.word==word_data_2).first()
         if word_2 is None:
-            word_2 = Word(word=word_data_2)
+            word_2 = Word(word=word_data_2, language_id=session['language'])
             db.session.add(word_2)
             db.session.commit()
-            flash(u'Relation word was added.', 'success')
+            flash(gettext(u'Relation word was added.'), 'success')
         
         if word_relation_data is not None:
             word_relation = WordRelation.query\
@@ -199,14 +201,16 @@ def word_relation(word_data, form_class = WordRelationForm):
             )
             word_relation.definition_id = definition_id_data
         if word_relation is not None:
-            flash(u'Word is now related to the specified word.', 'success')
+            flash(gettext(u'Word is now related to the specified word.'), 'success')
             db.session.add(word_relation)
             db.session.commit()
         else:
-            flash(u'The relationship was rejected.', 'error')
+            flash(gettext(u'The relationship was rejected.'), 'error')
     else:
         if not word_relation_form.word.data:
-            flash(u'The relationship was rejectedd.', 'error')
+            flash(gettext(u'The relationship was rejected.'), 'error')
+    if word_relation is None:
+        flash(gettext(u'The relationship was rejected.'), 'error')
 
     return redirect(url_for('edit_word', word_data=word_data))
 
@@ -216,15 +220,15 @@ def add_words(form_class=WordForm):
     form = form_class()
 
     if form.validate_on_submit():
-        word = Word(form.word.data)
+        word = Word(form.word.data, session['language'])
         db.session.add(word)
         db.session.commit()
         # Clear form
         form = form_class(MultiDict())
-        flash(u'The word sucessfully added.', 'success')
+        flash(gettext(u'The word sucessfully added.'), 'success')
     else:
         if request.method == 'POST':
-            flash(u'Error while trying to save the word.', 'error')
+            flash(gettext(u'Error while trying to save the word.'), 'error')
 
     words = Word.query.order_by('created DESC').limit(600).all()
 
@@ -254,7 +258,7 @@ def search_words(form_class=SearchForm):
         words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
     else:
         if request.method == 'POST':
-            flash(u'Please enter the word you are looking for.', 'error')
+            flash(gettext(u'Please enter the word you are looking for.'), 'error')
 
     ctx = {
         'form': form,

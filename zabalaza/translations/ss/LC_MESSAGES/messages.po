@@ -1,0 +1,170 @@
+# Swati translations for PROJECT.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-06-25 23:21+0200\n"
+"PO-Revision-Date: 2012-06-24 19:17+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ss <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: __init__.py:52
+msgid "This page does not exist"
+msgstr "Lelikasi alikatfolakali"
+
+#: views.py:24
+msgid "Language changed to {0}"
+msgstr "Lulwimi luguculelwe ku {0}"
+
+#: apps/dictionary/forms.py:15
+msgid "This field is required."
+msgstr "Loku kuyafuneka."
+
+#: apps/dictionary/forms.py:23
+msgid "This word has already been added."
+msgstr "Leligama selike lafakwa."
+
+#: apps/dictionary/forms.py:34
+msgid "This part of speech can not be a relation."
+msgstr "Leluhlobo lwenkulumo aluhlobani."
+
+#: apps/dictionary/forms.py:52
+msgid ""
+"The maximum word relations have been reached for this word and part of "
+"speech."
+msgstr "Kuhlobana kwemagama sekuphelele."
+
+#: apps/dictionary/forms.py:99
+msgid "The selected type of speech is already associated with this word."
+msgstr "Lenhlobo yenkhulumo seyike yafakwa."
+
+#: apps/dictionary/forms.py:117 apps/dictionary/forms.py:150
+#, fuzzy
+msgid "Word"
+msgstr "Ligama"
+
+#: apps/dictionary/forms.py:119
+msgid "Relation"
+msgstr "Kuhlobana"
+
+#: apps/dictionary/forms.py:121 apps/dictionary/forms.py:138
+msgid "Definition ID"
+msgstr "Inchazelo"
+
+#: apps/dictionary/forms.py:123 apps/dictionary/forms.py:146
+#: apps/dictionary/forms.py:161 templates/layout.html:21
+msgid "Add"
+msgstr "Ngeta"
+
+#: apps/dictionary/forms.py:135
+msgid "Definition"
+msgstr "Inchazelo"
+
+#: apps/dictionary/forms.py:137
+msgid "Part"
+msgstr "Luhlobo"
+
+#: apps/dictionary/forms.py:140
+msgid "Define"
+msgstr "Chaza"
+
+#: apps/dictionary/forms.py:143
+msgid "Usage examples"
+msgstr "Kusetshentiswa"
+
+#: apps/dictionary/forms.py:145
+msgid "Usage ID"
+msgstr "Kusetshentiswa"
+
+#: apps/dictionary/forms.py:151 templates/layout.html:24
+msgid "Search"
+msgstr "Funa"
+
+#: apps/dictionary/forms.py:155
+msgid "Part of speech"
+msgstr "Luhlobo lwenkhulumo"
+
+#: apps/dictionary/forms.py:158
+msgid "Parent type"
+msgstr "Inhlobo yekucala"
+
+#: apps/dictionary/forms.py:159
+msgid "Language"
+msgstr "Lulwimi"
+
+#: apps/dictionary/views.py:73
+msgid "The word has been associated with the part of speech."
+msgstr "Leligama selikelafakwa kulenhlobo yenkhulumo."
+
+#: apps/dictionary/views.py:141
+msgid "Definition added."
+msgstr "Inchazelo seyifakiwe."
+
+#: apps/dictionary/views.py:143 apps/dictionary/views.py:145
+msgid "Definition not added."
+msgstr "Inchazelo ayikafakwa."
+
+#: apps/dictionary/views.py:186
+msgid "Relation word was added."
+msgstr "Kuhlobana kwaleligama kufakiwe."
+
+#: apps/dictionary/views.py:204
+msgid "Word is now related to the specified word."
+msgstr "Leligama selihlonile naleli lolifakile."
+
+#: apps/dictionary/views.py:208 apps/dictionary/views.py:211
+#: apps/dictionary/views.py:213
+msgid "The relationship was rejected."
+msgstr "Lokuhlbana akukamukelwa."
+
+#: apps/dictionary/views.py:228
+msgid "The word sucessfully added."
+msgstr "Leligama lifakiwe kahle."
+
+#: apps/dictionary/views.py:231
+msgid "Error while trying to save the word."
+msgstr "Kwenteke liphutsa ngekugcinwa kwaleligama."
+
+#: apps/dictionary/views.py:261
+msgid "Please enter the word you are looking for."
+msgstr "Bhala ligama lolifunako."
+
+#: templates/layout.html:18 templates/dictionary/words.html:8
+msgid "Words"
+msgstr "Magama"
+
+#: templates/dictionary/add_words.html:8
+msgid "Add Words"
+msgstr "Ngeta Magama"
+
+#: templates/dictionary/edit_word.html:10
+msgid "Read-only mode"
+msgstr "Fundza kuphela"
+
+#: templates/dictionary/search_words.html:4
+msgid "Search Words"
+msgstr "Funa Magama"
+
+#: templates/dictionary/view_word.html:10
+msgid "Edit mode"
+msgstr "Hlela"
+
+#~ msgid "Noun"
+#~ msgstr "Libito"
+
+#~ msgid "Singular"
+#~ msgstr "Bunye"
+
+#~ msgid "Plural"
+#~ msgstr "Bunyenti"
+

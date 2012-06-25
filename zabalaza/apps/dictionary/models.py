@@ -9,14 +9,30 @@ from zabalaza import db
 from zabalaza.utils.history_meta import Versioned, versioned_session
 
 
+
+class Language(Versioned, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(1000))
+    label = db.Column(db.String(1000))
+    code = db.Column(db.String(20))
+    
+    def __init__(self, name, label, code):
+        self.name = name
+        self.code = code
+
+    def __repr__(self):
+        return '<Language %r (%r)>' % self.name, self.code
+
+
 class Word(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(1000))
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
     created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now)
 
-    def __init__(self, word):
+    def __init__(self, word, language_id):
         self.word = word
-
+        self.language_id = language_id
 
     def definitions(self, part_id):
         return Definition.query.filter(Definition.part_id==part_id)\
@@ -36,20 +52,6 @@ class Word(Versioned, db.Model):
         return '<Word %r>' % self.word
 
 
-class Language(Versioned, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(1000))
-    label = db.Column(db.String(1000))
-    code = db.Column(db.String(20))
-    
-    def __init__(self, name, label, code):
-        self.name = name
-        self.code = code
-
-    def __repr__(self):
-        return '<Language %r (%r)>' % self.name, self.code
-
-
 class Part(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1000))
@@ -65,12 +67,12 @@ class Part(Versioned, db.Model):
         self.parent_id = parent_id
         
     @staticmethod
-    def thesaurus_parts():
+    def thesaurus_parts(language_id):
         parent_part = aliased(Part)
         parts = Part.query.join(parent_part, Part.parent)\
             .filter(Part.parent_id == parent_part.id)\
             .filter(parent_part.name=='thesaurus')\
-            .filter(parent_part.language_id==session['language'])
+            .filter(parent_part.language_id==language_id)
         return parts
 
     def __repr__(self):
@@ -159,7 +161,7 @@ class Relation(Versioned, db.Model):
     def __init__(self, part_id, bidirectional, limit):
         self.part_id = part_id
         self.bidirectional = bidirectional
-        self.limit = limit
+        self.limit_ = limit
 
     @property
     def limit(self):
@@ -220,6 +222,7 @@ class WordRelation(Versioned, db.Model):
 
 
 def zabalaza_pre_populate():
+    """Insert fixtures to database"""
     from .fixtures.languages import data
 
     def add_part_row(data, parent_id=None, language_id=None):
@@ -238,6 +241,22 @@ def zabalaza_pre_populate():
             part.language_id = language_id
         db.session.add(part)
         db.session.commit()
+        
+
+        if 'relation' in data:
+            relation = Relation.query.filter_by(part_id=part.id).first()
+            if relation is None:
+                relation = Relation(
+                    part_id = part.id,
+                    bidirectional = data['relation']['fields']['bidirectional'],
+                    limit = data['relation']['fields']['limit'],
+                )
+            else:
+                relation.bidirectional = data['relation']['fields']['bidirectional']
+                relation.limit = data['relation']['fields']['limit']
+            db.session.add(relation)
+            db.session.commit()
+                
 
         for i, row in enumerate(data['children']):
             add_part_row(row, parent_id=part.id, language_id=language_id)
@@ -270,12 +289,6 @@ def zabalaza_pre_populate():
         for i, row in enumerate(data):
             add_part_row(row, language_id=language_id)
             
-
-    print '%r' % _languages
-    return '%r' % _languages
-
-
-    
             
 db.zabalaza_pre_populate = zabalaza_pre_populate
 

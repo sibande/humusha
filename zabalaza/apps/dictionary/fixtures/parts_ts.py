@@ -2,8 +2,8 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "libito",
-            "label": "Libito",
+            "name": "noun",
+            "label": "Noun",
             "parent_id": None,
             "en_eq": "noun",
         },
@@ -20,8 +20,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "bunye",
-                    "label": "Bunye",
+                    "name": "singular",
+                    "label": "Singular",
                     "parent_id": None,
                     "en_eq": "singular",
                 },
@@ -39,8 +39,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "bunyenti",
-                    "label": "Bunyenti",
+                    "name": "plural",
+                    "label": "Plural",
                     "parent_id": None,
                     "en_eq": "plural",
                 },
@@ -58,8 +58,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lilivamile",
-                    "label": "Lilivamile",
+                    "name": "common",
+                    "label": "Common",
                     "parent_id": None,
                     "en_eq": "common",
                 },
@@ -68,27 +68,18 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "libito-ngco",
-                    "label": "Libito ngco",
+                    "name": "proper",
+                    "label": "Proper",
                     "parent_id": None,
                     "en_eq": "proper",
                 },
                 "children": [],
-                "relation": {
-                    "pk": None,
-                    "fields": {
-                        "part_id": None,
-                        "bidirectional": False,
-                        "limit": 0,
-                        "en_eq": None,
-                    },
-                },
             },
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokubambekayo",
-                    "label": "Lokubambekayo",
+                    "name": "concrete",
+                    "label": "Concrete",
                     "parent_id": None,
                     "en_eq": "concrete",
                 },
@@ -97,8 +88,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokungabambeki",
-                    "label": "Lokungabambeki",
+                    "name": "abstract",
+                    "label": "Abstract",
                     "parent_id": None,
                     "en_eq": "abstract",
                 },
@@ -109,8 +100,8 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "sento",
-            "label": "Sento",
+            "name": "verb",
+            "label": "Verb",
             "parent_id": None,
             "en_eq": "verb",
         },
@@ -122,13 +113,13 @@ data =  [
                 "limit": 1,
                 "en_eq": None,
             },
-        },        
+        },
         "children": [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kwanyalo",
-                    "label": "Kwanyalo",
+                    "name": "present",
+                    "label": "Present",
                     "parent_id": None,
                     "en_eq": "present",
                 },
@@ -146,8 +137,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokudlulile",
-                    "label": "Lokudlulile",
+                    "name": "past",
+                    "label": "Past",
                     "parent_id": None,
                     "en_eq": "past",
                 },
@@ -165,8 +156,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokutako",
-                    "label": "Lokutako",
+                    "name": "future",
+                    "label": "future",
                     "parent_id": None,
                     "en_eq": "future",
                 },
@@ -184,8 +175,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kwanyolo-lokuchubekayo",
-                    "label": "Kwanyolo lokuchubekayo",
+                    "name": "present-progressive",
+                    "label": "Present progressive",
                     "parent_id": None,
                     "en_eq": "present-progressive",
                 },
@@ -203,8 +194,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokudlule-ngekuchubeka",
-                    "label": "Lokudlule ngekuchubeka",
+                    "name": "past-progressive",
+                    "label": "Past progressive",
                     "parent_id": None,
                     "en_eq": "past-progressive",
                 },
@@ -222,8 +213,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokutayo-ngekuchubeka",
-                    "label": "Lokutayo ngekuchubeka",
+                    "name": "future-progressive",
+                    "label": "Future progressive",
                     "parent_id": None,
                     "en_eq": "future-progressive",
                 },
@@ -241,8 +232,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kwanyalo-ngekuphelela",
-                    "label": "Kwanyalo ngekuphelela",
+                    "name": "present-perfect",
+                    "label": "Present perfect",
                     "parent_id": None,
                     "en_eq": "present-perfect",
                 },
@@ -257,11 +248,11 @@ data =  [
                     },
                 },
             },
-            {
+                        {
                 "pk": None,
                 "fields": {
-                    "name": "lokudlule-ngekuphelela",
-                    "label": "Lokudlule ngekuphelela",
+                    "name": "past-perfect",
+                    "label": "Past perfect",
                     "parent_id": None,
                     "en_eq": "past-perfect",
                 },
@@ -279,8 +270,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokutayo-ngekuphelela",
-                    "label": "Lokutayo ngekuphelela",
+                    "name": "future-perfect",
+                    "label": "Future perfect",
                     "parent_id": None,
                     "en_eq": "future-perfect",
                 },
@@ -298,8 +289,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kwanyalo-ngekuphelela-ngekuchubeka",
-                    "label": "Kwanyalo ngekuphelela ngekuchubeka",
+                    "name": "present-perfect-progressive",
+                    "label": "Present perfect progressive",
                     "parent_id": None,
                     "en_eq": "present-perfect-progressive",
                 },
@@ -317,8 +308,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokudlule-ngekuphelela-ngekuchubeka",
-                    "label": "Lokudlule ngekuphelela ngekuchubeka",
+                    "name": "past-perfect-progressive",
+                    "label": "Past perfect progressive",
                     "parent_id": None,
                     "en_eq": "past-perfect-progressive",
                 },
@@ -336,8 +327,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokutayo-ngekuphelela-lokuchubekayo",
-                    "label": "Lokutayo ngekuphelela lokuchubekayo",
+                    "name": "future-perfect-progressive",
+                    "label": "Future perfect progressive",
                     "parent_id": None,
                     "en_eq": "future-perfect-progressive",
                 },
@@ -357,17 +348,26 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "sita-sento",
-            "label": "Sita sento",
+            "name": "adverb",
+            "label": "Adverb",
             "parent_id": None,
             "en_eq": "adverb",
+        },
+        "relation": {
+            "pk": None,
+            "fields": {
+                "part_id": None,
+                "bidirectional": False,
+                "limit": 1,
+                "en_eq": None,
+            },
         },
         "children": [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesichaza-indlela",
-                    "label": "Lesichaza indlela",
+                    "name": "defining-manner",
+                    "label": "Defining manner",
                     "parent_id": None,
                     "en_eq": "defining-manner",
                 },
@@ -376,8 +376,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesikhomba-indzawo",
-                    "label": "Lesikhomba indzawo",
+                    "name": "denoting-place",
+                    "label": "Denoting place",
                     "parent_id": None,
                     "en_eq": "denoting-place",
                 },
@@ -386,8 +386,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesicinisekisa-sikhatsi",
-                    "label": "Lesicinisekisa sikhatsi",
+                    "name": "fixing-time",
+                    "label": "Fixing time",
                     "parent_id": None,
                     "en_eq": "fixing-time",
                 },
@@ -396,8 +396,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesichaza-kudllisekela",
-                    "label": "Lesichaza kudllisekela",
+                    "name": "conveying-extent",
+                    "label": "Conveying extent",
                     "parent_id": None,
                     "en_eq": "conveying-extent",
                 },
@@ -406,8 +406,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesichaza-imvamisa",
-                    "label": "Lesichaza imvamisa",
+                    "name": "expressing-frequency",
+                    "label": "Expressing frequency",
                     "parent_id": None,
                     "en_eq": "expressing-frequency",
                 },
@@ -416,8 +416,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesikhomba-umbono",
-                    "label": "Lesikhomba umbono",
+                    "name": "indicating-viewpoint",
+                    "label": "Indicating viewpoint",
                     "parent_id": None,
                     "en_eq": "indicating-viewpoint",
                 },
@@ -426,8 +426,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesichaza-imphatfo",
-                    "label": "Lesichaza imphatfo",
+                    "name": "indicating-attitude",
+                    "label": "Indicating attitude",
                     "parent_id": None,
                     "en_eq": "indicating-attitude",
                 },
@@ -436,8 +436,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesihlanganisa-umcabango-losemuva",
-                    "label": "Lesihlanganisa umcabango losemuva",
+                    "name": "linking-previous-thought",
+                    "label": "Linking a previous thought",
                     "parent_id": None,
                     "en_eq": "linking-previous-thought",
                 },
@@ -446,8 +446,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesilungisa-umbono",
-                    "label": "Lesilungisa umbono",
+                    "name": "modifying-a-statement",
+                    "label": "Modifying a statement",
                     "parent_id": None,
                     "en_eq": "modifying-a-statement",
                 },
@@ -459,17 +459,26 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "sita-libito",
-            "label": "Sita libito",
+            "name": "adjective",
+            "label": "Adjective",
             "parent_id": None,
             "en_eq": "adjective",
+        },
+        "relation": {
+            "pk": None,
+            "fields": {
+                "part_id": None,
+                "bidirectional": False,
+                "limit": 1,
+                "en_eq": None,
+            },
         },
         "children": [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesisondzetako",
-                    "label": "Lesisondzetako",
+                    "name": "possesive",
+                    "label": "Possesive",
                     "parent_id": None,
                     "en_eq": "possesive",
                 },
@@ -478,8 +487,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "sekukhomba",
-                    "label": "Sekukhomba",
+                    "name": "demonstrative",
+                    "label": "Demonstrative",
                     "parent_id": None,
                     "en_eq": "demonstrative",
                 },
@@ -488,8 +497,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesisekelayo",
-                    "label": "Lesisekelayo",
+                    "name": "relative",
+                    "label": "Relative",
                     "parent_id": None,
                     "en_eq": "relative",
                 },
@@ -498,8 +507,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lesibutayo",
-                    "label": "Lesibutayo",
+                    "name": "interrogative",
+                    "label": "Interrogative",
                     "parent_id": None,
                     "en_eq": "interrogative",
                 },
@@ -508,8 +517,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "lokungabaleki",
-                    "label": "Lokungabaleki",
+                    "name": "indefinite",
+                    "label": "Indefinite",
                     "parent_id": None,
                     "en_eq": "indefinite",
                 },
@@ -518,8 +527,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "sisindvo",
-                    "label": "Sisindvo",
+                    "name": "quantity",
+                    "label": "Quantity",
                     "parent_id": None,
                     "en_eq": "quantity",
                 },
@@ -528,8 +537,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "imvelo",
-                    "label": "Imvelo",
+                    "name": "emotive",
+                    "label": "Emotive",
                     "parent_id": None,
                     "en_eq": "emotive",
                 },
@@ -538,8 +547,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "bukhulu",
-                    "label": "Bukhulu",
+                    "name": "size",
+                    "label": "Size",
                     "parent_id": None,
                     "en_eq": "size",
                 },
@@ -548,8 +557,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "mnyaka",
-                    "label": "Mnyaka",
+                    "name": "age",
+                    "label": "Age",
                     "parent_id": None,
                     "en_eq": "age",
                 },
@@ -558,8 +567,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "umbala-kubukeka",
-                    "label": "Umbala / kubukeka",
+                    "name": "color-texture",
+                    "label": "Color / Texture",
                     "parent_id": None,
                     "en_eq": "color-texture",
                 },
@@ -568,8 +577,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kucacisa",
-                    "label": "kucacisa",
+                    "name": "specificity",
+                    "label": "Specificity",
                     "parent_id": None,
                     "en_eq": "specificity",
                 },
@@ -578,8 +587,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "injongo",
-                    "label": "Injongo",
+                    "name": "purpose",
+                    "label": "Purpose",
                     "parent_id": None,
                     "en_eq": "purpose",
                 },
@@ -595,6 +604,15 @@ data =  [
             "parent_id": None,
             "en_eq": "pronoun",
         },
+        "relation": {
+            "pk": None,
+            "fields": {
+                "part_id": None,
+                "bidirectional": False,
+                "limit": 0,
+                "en_eq": None,
+            },
+        },        
         "children": [
             # {
             #     "pk": None,
@@ -610,8 +628,8 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "sibabato",
-            "label": "Sibabato",
+            "name": "interjection",
+            "label": "Interjection",
             "parent_id": None,
             "en_eq": "interjection",
         },
@@ -621,8 +639,8 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "sichumani",
-            "label": "Sichumani",
+            "name": "conjunction",
+            "label": "Conjunction",
             "parent_id": None,
             "en_eq": "conjunction",
         },
@@ -630,8 +648,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "sikhatsi",
-                    "label": "Sikhatsi",
+                    "name": "time-1",
+                    "label": "Time",
                     "parent_id": None,
                     "en_eq": "time-1",
                 },
@@ -640,8 +658,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "indzawo",
-                    "label": "Indzawo",
+                    "name": "place",
+                    "label": "Place",
                     "parent_id": None,
                     "en_eq": "place",
                 },
@@ -650,8 +668,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "imbhangela",
-                    "label": "Imbhangela",
+                    "name": "cause",
+                    "label": "Cause",
                     "parent_id": None,
                     "en_eq": "cause",
                 },
@@ -660,8 +678,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "simo",
-                    "label": "Simo",
+                    "name": "condition",
+                    "label": "Condition",
                     "parent_id": None,
                     "en_eq": "condition",
                 },
@@ -670,8 +688,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kucatsanisa",
-                    "label": "Kucatsanisa",
+                    "name": "comparison",
+                    "label": "Comparison",
                     "parent_id": None,
                     "en_eq": "comparison",
                 },
@@ -680,8 +698,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kuhlobanisa",
-                    "label": "Kuhlobanisa ngekucatsanisa",
+                    "name": "contrast",
+                    "label": "Contrast",
                     "parent_id": None,
                     "en_eq": "contrast",
                 },
@@ -690,8 +708,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "injongo",
-                    "label": "Injongo",
+                    "name": "purpose-1",
+                    "label": "Purpose",
                     "parent_id": None,
                     "en_eq": "purpose-1",
                 },
@@ -700,8 +718,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "umphumela",
-                    "label": "Umphumela",
+                    "name": "result",
+                    "label": "Result",
                     "parent_id": None,
                     "en_eq": "result",
                 },
@@ -710,8 +728,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kukhetsa",
-                    "label": "Kukhetsa",
+                    "name": "preference",
+                    "label": "Preference",
                     "parent_id": None,
                     "en_eq": "preference",
                 },
@@ -720,8 +738,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kuhlukanisa",
-                    "label": "Kuhlukanisa",
+                    "name": "exception",
+                    "label": "Exception",
                     "parent_id": None,
                     "en_eq": "exception",
                 },
@@ -826,8 +844,8 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kufananisa",
-                    "label": "Kufananisa",
+                    "name": "synonym",
+                    "label": "Synonym",
                     "parent_id": None,
                     "en_eq": "synonym",
                 },
@@ -840,15 +858,15 @@ data =  [
                         "limit": 0,
                         "en_eq": None,
                     },
-                }
+                },
             },
             {
                 "pk": None,
                 "fields": {
-                    "name": "kuphikisa",
-                    "label": "Kuphikisa",
+                    "name": "antonym",
+                    "label": "Antonym",
                     "parent_id": None,
-                    "en_eq": "antonymn",
+                    "en_eq": None,
                 },
                 "children": [],
                 "relation": {
@@ -860,7 +878,9 @@ data =  [
                         "en_eq": None,
                     },
                 },
+
             },
         ],
     },
 ]
+

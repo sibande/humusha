@@ -51,7 +51,7 @@ data = [
         "fields": {
             "name": "isindebele",
             "label": "isiNdebele",
-            "code": "nd",
+            "code": "nr",
         },
         "children": [],
     },
