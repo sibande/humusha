@@ -13,7 +13,7 @@ from .models import Word, WordPart, Definition, Usage, Part, Relation,\
 
 @app.route('/words/')
 def words():
-    words = Word.query.order_by('created DESC').limit(600).all()
+    words = Word.query.order_by('id DESC').limit(600).all()
     
     ctx = {
         'words': words,
@@ -230,7 +230,7 @@ def add_words(form_class=WordForm):
         if request.method == 'POST':
             flash(gettext(u'Error while trying to save the word.'), 'error')
 
-    words = Word.query.order_by('created DESC').limit(600).all()
+    words = Word.query.order_by('id DESC').limit(600).all()
 
     ctx = {
         'form': form,
@@ -240,11 +240,21 @@ def add_words(form_class=WordForm):
     
     return render_template('dictionary/add_words.html', **ctx)
 
+
+@app.route('/words/history/<word_data>')
+def word_history(word_data):
+    ctx = {
+        'search_form': SearchForm(),
+    }
+    
+    return render_template('dictionary/history.html', **ctx)
+
+
 @app.route('/words/search', methods=['GET', 'POST'])
 def search_words(form_class=SearchForm):
     form = form_class()
 
-    words = Word.query.order_by('created DESC').limit(600).all()
+    words = Word.query.order_by('id DESC').limit(600).all()
 
     if form.validate_on_submit() or request.args.get('q'):
         if request.args.get('q') and not form.word.data:

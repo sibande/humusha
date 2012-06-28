@@ -1,10 +1,13 @@
 # SQLAlchemy example versioning
+import datetime
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import mapper, class_mapper, attributes, object_mapper
 from sqlalchemy.orm.exc import UnmappedClassError, UnmappedColumnError
-from sqlalchemy import Table, Column, ForeignKeyConstraint, Integer
+from sqlalchemy import Table, Column, ForeignKeyConstraint, Integer, DateTime
 from sqlalchemy import event
 from sqlalchemy.orm.properties import RelationshipProperty
+
+# from zabalaza.apps.dictionary.models import Change
 
 def col_references_table(col, table):
     for fk in col.foreign_keys:
@@ -48,6 +51,8 @@ def _history_mapper(local_mapper):
             cols.append(Column('version', Integer, primary_key=True))
         else:
             cols.append(Column('version', Integer, primary_key=True))
+
+        cols.append(Column('created', DateTime(timezone=True), default=datetime.datetime.now))
 
         if super_fks:
             cols.append(ForeignKeyConstraint(*zip(*super_fks)))
@@ -102,7 +107,7 @@ def versioned_objects(iter):
         if hasattr(obj, '__history_mapper__'):
             yield obj
 
-def create_version(obj, session, deleted = False):
+def create_version(obj, session, before_flush = False, deleted = False, new = False):
     obj_mapper = object_mapper(obj)
     history_mapper = obj.__history_mapper__
     history_cls = history_mapper.class_
@@ -118,9 +123,9 @@ def create_version(obj, session, deleted = False):
             continue
 
         for hist_col in hm.local_table.c:
-            if hist_col.key == 'version':
+            if hist_col.key in ['version', 'created']:
                 continue
-
+            
             obj_col = om.local_table.c[hist_col.key]
 
             # get the value of the
@@ -162,21 +167,53 @@ def create_version(obj, session, deleted = False):
                 obj_changed = True
                 break
 
-    if not obj_changed and not deleted:
+    if not obj_changed and not deleted and not new:
         return
-
+    if before_flush:
+        obj.version += 1
+        return
+        
     attr['version'] = obj.version
     hist = history_cls()
     for key, value in attr.iteritems():
         setattr(hist, key, value)
+
+    if deleted:
+        action = 'delete'
+    elif new:
+        action = 'create'
+    else:
+        action = 'update'
+    from zabalaza.apps.dictionary.models import Change
+    change = Change(
+        row_id = obj.id,
+        word_id = None,
+        version = obj.version,
+        model = obj.__class__.__name__,
+        action = action
+    )
+    session.add(change)
+    if new:
+        hist.version = 0
     session.add(hist)
     obj.version += 1
+    session.add(obj)
 
 def versioned_session(session):
-    @event.listens_for(session, 'before_flush')
-    def before_flush(session, flush_context, instances):
+    @event.listens_for(session, 'after_flush')
+    def after_flush(session, flush_context):
         for obj in versioned_objects(session.dirty):
-            print 'hello world'
             create_version(obj, session)
         for obj in versioned_objects(session.deleted):
             create_version(obj, session, deleted = True)
+        for obj in versioned_objects(session.new):
+            create_version(obj, session, new = True)
+    @event.listens_for(session, 'before_flush')
+    def before_flush(session, flush_context, instances):
+        for obj in versioned_objects(session.dirty):
+            create_version(obj, session, before_flush=True)
+        for obj in versioned_objects(session.deleted):
+            create_version(obj, session, deleted = True, before_flush=True)
+            
+
+            

@@ -5,12 +5,17 @@
     <div class="span-18">
       <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
     </div>
-    <div class="right">
-      <div class="caps">
-        <a href="{{ url_for("view_word", word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
+    <div class="prepend-18" >
+      <div class="clearfix right">
+        <div class="caps">
+          <a href="{{ url_for("word_history", word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
+          <a href="{{ url_for("view_word", word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
+        </div>
+        <br />
+        <div class="right">
+          {{ render_language_form("language") }}
+        </div>
       </div>
-      <br />
-      {{ render_language_form("language") }}
     </div>
   </div>
   {% for word_part in speech_parts %}

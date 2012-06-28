@@ -19,6 +19,7 @@ class Language(Versioned, db.Model):
     def __init__(self, name, label, code):
         self.name = name
         self.code = code
+        self.label = label
 
     def __repr__(self):
         return '<Language %r (%r)>' % self.name, self.code
@@ -28,7 +29,6 @@ class Word(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(1000))
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
-    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now)
 
     def __init__(self, word, language_id):
         self.word = word
@@ -108,6 +108,27 @@ class Etymology(Versioned, db.Model):
         
     def __repr__(self):
         return '<Etymology %r>' % self.etymology[0:50]
+
+
+class Change(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey('word.id'), default=None)
+    version = db.Column(db.Integer)
+    row_id = db.Column(db.Integer)
+    model = db.Column(db.String(1000))
+    action = db.Column(db.String(1000))
+    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now)
+    
+    def __init__(self, row_id, word_id, version, model, action):
+        self.row_id = row_id
+        self.word_id = word_id
+        self.version = version
+        self.model = model
+        self.action = action
+        
+    def __repr__(self):
+        return '<Change %r>' % self.word_id
+
 
 
 class Usage(Versioned, db.Model):
