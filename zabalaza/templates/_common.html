@@ -1,0 +1,13 @@
+{# language switching form (type "app_language" for global site language
+and "language" for content contribution language) #}
+{% macro render_language_form(language_type) %}
+  <form action="{{ url_for("switch_language", next=request.url) }}" id="switch-language-form" method="POST">
+    <select name="{{ language_type }}" class="span-3">
+      {% for language in languages %}
+        <option value="{{ language.code }}" {% if language.id == session[language_type] %}selected="selected"{% endif %}>
+          {{ language.label }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+{% endmacro %}

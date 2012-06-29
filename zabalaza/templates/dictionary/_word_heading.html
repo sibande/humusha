@@ -1,0 +1,33 @@
+{# word heading for the view and edit pages (defaults to read mode) #}
+{% macro word_heading_render(view_mode="read") %}
+<div class="clearfix">
+  <div class="column">
+    <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
+  </div>
+  <div class="span-1">
+    &nbsp;
+  </div>
+  <div class="column" style="padding:18px;font-size:1.2em;">
+    <div class="clearfix">  
+      <div class="caps">[{{ word.language.label }}]</div>
+    </div>
+  </div>
+  <div class="prepend-18" >
+    <div class="clearfix right">
+      <div class="caps">
+        <a href="{{ url_for("word_history", word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
+        {% if view_mode == "edit" %}
+          <a href="{{ url_for("view_word", word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
+        {% else %}
+          <a href="{{ url_for("edit_word", word_data=word.word) }}">{{ gettext('Edit mode') }}</a>
+        {% endif %}
+      </div>
+      <br />
+      <div class="right">
+        {% from "_common.html" import render_language_form with context %}
+        {{ render_language_form("language") }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

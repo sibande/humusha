@@ -30,6 +30,8 @@ class Word(Versioned, db.Model):
     word = db.Column(db.String(1000))
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
 
+    language = db.relationship("Language")
+
     def __init__(self, word, language_id):
         self.word = word
         self.language_id = language_id

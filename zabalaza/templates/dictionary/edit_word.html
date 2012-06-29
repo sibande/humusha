@@ -1,23 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}Words{% endblock %}
 {% block content %}
-  <div class="clearfix">  
-    <div class="span-18">
-      <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
-    </div>
-    <div class="prepend-18" >
-      <div class="clearfix right">
-        <div class="caps">
-          <a href="{{ url_for("word_history", word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
-          <a href="{{ url_for("view_word", word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
-        </div>
-        <br />
-        <div class="right">
-          {{ render_language_form("language") }}
-        </div>
-      </div>
-    </div>
-  </div>
+
+  {# word heading and main actions (edit/history/discuss?) #}
+  {% from "dictionary/_word_heading.html" import word_heading_render with context %}
+  {{ word_heading_render(view_mode="edit") }}
+
   {% for word_part in speech_parts %}
     <div class="clearfix">
       <div class="span-4">
@@ -74,11 +62,11 @@
     <div class="clearfix">
       {% for part_type in word_part.part_types %}
         <div class="clearfix">
-          <div class="span-6" style="padding-top:14px;"><h3>{{
+          <div class="column" style="padding-top:14px;"><h3>{{
           part_type.part.label }}</h3></div>
           {% if part_type.part.relation.part_id %}
-            <div class="span-2" style="padding-top:16px;">
-              of word(s)
+            <div class="prepend-1 span-2" style="padding-top:16px;">
+              <em>{{ ngettext("of word", "of words", part_type.part.relation.limit) }}</em>
             </div>
             <div class="{% if part_type.part.relation.limit_reached(word.id) and not request.view_args.part_data == part_type.part.id %}hide{% endif %}">
               <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST">
