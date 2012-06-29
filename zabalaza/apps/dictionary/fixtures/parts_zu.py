@@ -835,21 +835,22 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "thesaurus",
-            "label": "Thesaurus",
+            "name": "other",
+            "label": "other",
             "parent_id": None,
-            "en_eq": "thesaurus",
+            "en_eq": "other",
         },
         "children": [
             {
                 "pk": None,
                 "fields": {
-                    "name": "synonym",
-                    "label": "Synonym",
-                    "parent_id": None,
-                    "en_eq": "synonym",
+                    "name": "translation",
+                    "label": "Translation",
+                    "parent_id": 0,
+                    "en_eq": "translation",
                 },
-                "children": [],
+                "children": [
+                ],
                 "relation": {
                     "pk": None,
                     "fields": {
@@ -863,22 +864,51 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "antonym",
-                    "label": "Antonym",
+                    "name": "thesaurus",
+                    "label": "Thesaurus",
                     "parent_id": None,
-                    "en_eq": None,
+                    "en_eq": "thesaurus",
                 },
-                "children": [],
-                "relation": {
-                    "pk": None,
-                    "fields": {
-                        "part_id": None,
-                        "bidirectional": True,
-                        "limit": 0,
-                        "en_eq": None,
+                "children": [
+                    {
+                        "pk": None,
+                        "fields": {
+                            "name": "synonym",
+                            "label": "Synonym",
+                            "parent_id": None,
+                            "en_eq": "synonym",
+                        },
+                        "children": [],
+                        "relation": {
+                            "pk": None,
+                            "fields": {
+                                "part_id": None,
+                                "bidirectional": True,
+                                "limit": 0,
+                                "en_eq": None,
+                            },
+                        },
                     },
-                },
-
+                    {
+                        "pk": None,
+                        "fields": {
+                            "name": "antonym",
+                            "label": "Antonym",
+                            "parent_id": None,
+                            "en_eq": None,
+                        },
+                        "children": [],
+                        "relation": {
+                            "pk": None,
+                            "fields": {
+                                "part_id": None,
+                                "bidirectional": True,
+                                "limit": 0,
+                                "en_eq": None,
+                            },
+                        },
+                    },
+                ],
             },
         ],
     },

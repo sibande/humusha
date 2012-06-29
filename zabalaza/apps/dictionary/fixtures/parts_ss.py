@@ -817,21 +817,22 @@ data =  [
     {
         "pk": None,
         "fields": {
-            "name": "thesaurus",
-            "label": "Thesaurus",
+            "name": "other",
+            "label": "other",
             "parent_id": None,
-            "en_eq": "thesaurus",
+            "en_eq": "other",
         },
         "children": [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kufananisa",
-                    "label": "Kufananisa",
+                    "name": "kuhumusha",
+                    "label": "Kuhumusha",
                     "parent_id": None,
-                    "en_eq": "synonym",
+                    "en_eq": "translation",
                 },
-                "children": [],
+                "children": [
+                ],
                 "relation": {
                     "pk": None,
                     "fields": {
@@ -840,27 +841,57 @@ data =  [
                         "limit": 0,
                         "en_eq": None,
                     },
-                }
+                },
             },
             {
                 "pk": None,
                 "fields": {
-                    "name": "kuphikisa",
-                    "label": "Kuphikisa",
+                    "name": "thesaurus",
+                    "label": "Thesaurus",
                     "parent_id": None,
-                    "en_eq": "antonymn",
+                    "en_eq": "thesaurus",
                 },
-                "children": [],
-                "relation": {
-                    "pk": None,
-                    "fields": {
-                        "part_id": None,
-                        "bidirectional": True,
-                        "limit": 0,
-                        "en_eq": None,
+                "children": [
+                    {
+                        "pk": None,
+                        "fields": {
+                            "name": "kufananisa",
+                            "label": "Kufananisa",
+                            "parent_id": None,
+                            "en_eq": "synonym",
+                        },
+                        "children": [],
+                        "relation": {
+                            "pk": None,
+                            "fields": {
+                                "part_id": None,
+                                "bidirectional": True,
+                                "limit": 0,
+                                "en_eq": None,
+                            },
+                        }
                     },
-                },
+                    {
+                        "pk": None,
+                        "fields": {
+                            "name": "kuphikisa",
+                            "label": "Kuphikisa",
+                            "parent_id": None,
+                            "en_eq": "antonymn",
+                        },
+                        "children": [],
+                        "relation": {
+                            "pk": None,
+                            "fields": {
+                                "part_id": None,
+                                "bidirectional": True,
+                                "limit": 0,
+                                "en_eq": None,
+                            },
+                        },
+                    },
+                ],
             },
-        ],
-    },
+        ]
+    }
 ]

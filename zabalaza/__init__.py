@@ -49,5 +49,5 @@ def get_locale():
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return gettext(u'This page does not exist', 404)
+    return gettext(u'This page does not exist {0}'.format(404))
 

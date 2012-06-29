@@ -83,6 +83,8 @@ class DynamicSelectField(SelectField):
         parts = Part.query.filter_by(parent_id=parent_id)
         if language_id is not None:
             parts = parts.filter_by(language_id=language_id)
+        if parent_id is None:
+            parts = parts.filter(Part.name!='other')
         choices = [(p.id, _(p.label)) for p in parts]
 
         self.choices = choices

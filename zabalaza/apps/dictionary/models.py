@@ -225,6 +225,13 @@ class WordRelation(Versioned, db.Model):
     relation_id = db.Column(db.Integer, db.ForeignKey('relation.id'),
                         primary_key=True)
     definition_id = db.Column(db.Integer, db.ForeignKey('definition.id'))
+    # used by translations
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'),
+                            default=None)
+    # used by translations
+    part_id = db.Column(db.Integer, db.ForeignKey('part.id'),
+                        default=None)
+        
 
     word_1 = db.relationship("Word",
                              primaryjoin=Word.id==word_id_1,
