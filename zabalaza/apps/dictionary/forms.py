@@ -5,8 +5,8 @@ from flask import session
 from flaskext.wtf import Form, TextField, Required as BaseRequired, SubmitField, \
     ValidationError, SelectField, HiddenField, FieldList, IntegerField
 
-
-from .models import Word, Part, WordPart, Relation, WordRelation, Language
+from .models import Word, Part, WordPart, Relation, WordRelation, Language,\
+    Translation
 
 
 class Required(BaseRequired):
@@ -43,6 +43,28 @@ class RelationPart(object):
             
         if not Relation.query.filter_by(part_id=part_id).count():
             raise ValidationError(self.message)
+
+
+class TranslationLanguage(object):
+    def __init__(self, message=None):
+        if not message:
+            message = _(
+                u'This language has been added to this word part of speech.')
+        self.message = message
+
+    def __call__(self, form, field):
+        try:
+            part_id = int(form.part_id.data)
+        except ValueError:
+            part_id = None
+        try:
+            word_id = int(form.word_id.data)
+        except ValueError:
+            word_id = None
+        if Translation.query.filter_by(part_id=part_id)\
+                .filter_by(word_id=word_id).filter_by(language_id=int(field.data)).count():
+            raise ValidationError(self.message)
+    
 
 
 class RelationLimit(object):
@@ -121,6 +143,7 @@ class WordRelationForm(Form):
     word_relation = FieldList(HiddenField(_(u'Relation'), validators=[]))
     part = HiddenField(u'Part', validators=[RelationPart()])
     definition_id = HiddenField(_(u'Definition ID'), validators=[])
+    translation_id = HiddenField(_(u'Translation ID'), validators=[])
 
     submit = SubmitField(_(u'Add'))
     
@@ -138,6 +161,7 @@ class DefinitionForm(Form):
     
     part = HiddenField(_(u'Part'), validators=[])
     definition_id = HiddenField(_(u'Definition ID'), validators=[])
+    translation_id = HiddenField(_(u'Translation ID'), validators=[])
 
     submit = SubmitField(_(u'Define'))
 
@@ -152,6 +176,15 @@ class SearchForm(Form):
     word = TextField(_(u'Word'), validators=[Required()])
     submit = SubmitField(_(u'Search'))
 
+
+class TranslationForm(Form):
+    language_id = SelectField(_(u'Language'), coerce=int, choices=[
+            (l.id, l.label) for l in Language.query.all()],
+                              validators=[TranslationLanguage()])
+    word_id = HiddenField(_(u'Word'))
+    part_id = HiddenField(u'Part')
+    submit = SubmitField(_(u'Add'))
+    
 
 class SpeechPartForm(Form):
     part = DynamicSelectField(_(u'Part of speech'), choices=[], coerce=int, validators=[

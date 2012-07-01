@@ -826,7 +826,7 @@ data =  [
             {
                 "pk": None,
                 "fields": {
-                    "name": "kuhumusha",
+                    "name": "translation",
                     "label": "Kuhumusha",
                     "parent_id": None,
                     "en_eq": "translation",

@@ -9,7 +9,6 @@ from zabalaza import db
 from zabalaza.utils.history_meta import Versioned, versioned_session
 
 
-
 class Language(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1000))
@@ -22,7 +21,7 @@ class Language(Versioned, db.Model):
         self.label = label
 
     def __repr__(self):
-        return '<Language %r (%r)>' % self.name, self.code
+        return '<Language {0} ({1})>'.format(self.name, self.code)
 
 
 class Word(Versioned, db.Model):
@@ -36,17 +35,19 @@ class Word(Versioned, db.Model):
         self.word = word
         self.language_id = language_id
 
-    def definitions(self, part_id):
+    def definitions(self, part_id, translation_id=None):
         return Definition.query.filter(Definition.part_id==part_id)\
+            .filter(Definition.translation_id==translation_id)\
             .filter(Definition.word_id==self.id)
 
-    def relations(self, part_id, definition_id=None):
+    def relations(self, part_id, definition_id=None, translation_id=None):
         relation = Relation.query.filter(Relation.part_id==part_id).first()
         if relation is None:
             return []
         word_relations = WordRelation.query.filter(
             or_(WordRelation.word_id_1==self.id, WordRelation.word_id_2==self.id)
         ).filter(WordRelation.relation_id==relation.id)\
+        .filter(WordRelation.translation_id==translation_id)\
         .filter(WordRelation.definition_id==definition_id)
         return word_relations
         
@@ -77,6 +78,17 @@ class Part(Versioned, db.Model):
             .filter(parent_part.language_id==language_id)
         return parts
 
+    @staticmethod
+    def translation_part(language_id):
+        part = Part.query.filter(Part.name=='translation')\
+            .filter(Part.language_id==language_id).first()
+        return part
+    
+    def translation_languages(self, word_id):
+        languages = Translation.query.filter(Translation.part_id==self.id)\
+            .filter(Translation.word_id==word_id)
+        return languages
+
     def __repr__(self):
         return '<Part of speech %r>' % self.label
 
@@ -86,7 +98,9 @@ class Definition(Versioned, db.Model):
     definition = db.Column(db.Text)
     word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
     part_id = db.Column(db.Integer, db.ForeignKey('part.id'))
-    
+    translation_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
+                               default=None)
+
     word = db.relationship("Word")
     part = db.relationship("Part")
 
@@ -213,6 +227,26 @@ class Relation(Versioned, db.Model):
 Part.relation = db.relationship("Relation", uselist=False)
 
 
+class Translation(Versioned, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
+    part_id = db.Column(db.Integer, db.ForeignKey('part.id'),
+                        default=None)
+    
+    language = db.relationship("Language", lazy="joined")
+    word = db.relationship("Word")
+    part = db.relationship("Part")
+    
+    def __init__(self, word_id, language_id, part_id):
+        self.word_id = word_id
+        self.language_id = language_id
+        self.part_id = part_id
+
+    def __repr__(self):
+        return '<Transaltion %r>' % self.id
+
+
 class WordRelation(Versioned, db.Model):
     """Relationships between words `plural, common noun, past tense, simile,
     direct translation, ...)` of a word (word_id_1).
@@ -225,14 +259,9 @@ class WordRelation(Versioned, db.Model):
     relation_id = db.Column(db.Integer, db.ForeignKey('relation.id'),
                         primary_key=True)
     definition_id = db.Column(db.Integer, db.ForeignKey('definition.id'))
-    # used by translations
-    language_id = db.Column(db.Integer, db.ForeignKey('language.id'),
-                            default=None)
-    # used by translations
-    part_id = db.Column(db.Integer, db.ForeignKey('part.id'),
-                        default=None)
-        
-
+    translation_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
+                               default=None)
+    
     word_1 = db.relationship("Word",
                              primaryjoin=Word.id==word_id_1,
                              lazy="joined")
@@ -240,6 +269,7 @@ class WordRelation(Versioned, db.Model):
                              primaryjoin=Word.id==word_id_2,
                              lazy="joined")
     relation = db.relationship("Relation", lazy="joined")
+    translation = db.relationship("Translation", lazy="joined")
 
     def __init__(self, word_id_1, word_id_2, relation_id):
         self.word_id_1 = word_id_1

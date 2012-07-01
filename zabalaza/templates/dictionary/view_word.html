@@ -137,6 +137,60 @@
       {% endfor %}
   </div>
 
+  <div class="clearfix">
+    <div class="clearfix">
+      <div class="span-18">
+        <h2 class="no-margin">{{ translation_part.label }}</h2>
+      </div>
+    </div>
+    
+    <div class="clearfix">
+      {% for translation in translation_part.translation_languages(word.id) %}
+        <h3>{{ translation.language.label }}</h3>
+        
+        <div class="clearfix">
+          {% for definition in word.definitions(translation_part.id, translation_id=translation.id) %}
+            <div class="span-20">
+              <ul>
+                {% if not request.view_args.definition_data == definition.id %}
+	          <li>
+                    {{ definition.definition }}
+                    </li>
+                  {% endif %}
+                  <ol style="padding-left: 0px;">
+                    <div class="clearfix">
+                      {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
+                        <div class="span-2">
+                          {% if not word_relation.word_id_1 == word.id %}
+                            {{ word_relation.word_1.word }}
+                          {% else %}
+                          {{ word_relation.word_2.word }}
+                        {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </ol>
+              </ul>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="clearfix">
+          {# global (not belonging to a definition) part words #}
+          {% for word_relation in word.relations(translation_part.id, translation_id=translation.id) %}
+            <div class="span-2">
+              {% if not word_relation.word_id_1 == word.id %}
+                {{ word_relation.word_1.word }}
+              {% else %}
+                {{ word_relation.word_2.word }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+          
+      {% endfor %}
+    </div>
+    
+  </div>
   
   {#
   <div class="prepend-14">

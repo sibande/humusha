@@ -6,6 +6,7 @@
   {% from "dictionary/_word_heading.html" import word_heading_render with context %}
   {{ word_heading_render(view_mode="edit") }}
 
+
   {% for word_part in speech_parts %}
     <div class="clearfix">
       <div class="span-4">
@@ -284,6 +285,7 @@
 
 
           {% endfor %}
+
         </div>
         <div class="clearfix">
           {% for word_relation in word.relations(thesaurus_part.id) %}
@@ -339,6 +341,140 @@
         <!-- </form> -->
       <!-- </div> -->
     {% endfor %}
+
+
+
+    {# word translation block #}
+    <div class="clearfix">
+      <div class="clearfix">
+        <div class="span-4">
+          <h2 class="no-margin">{{ translation_part.label }}</h2>
+        </div>
+        <div class="span-6" style="padding: 0px 0;">
+          <div class="clearfix">
+            <form action="{{ url_for("translation_language", word_data=word.word) }}" method="POST">
+              <div class="column">
+                {{ translation_form.word_id(value=word.id) }}
+                {{ translation_form.part_id(value=translation_part.id) }}
+                {{ translation_form.language_id }}
+              </div>
+              <div class="span-1">
+                {{ translation_form.submit }}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="clearfix">
+        {% for translation in translation_part.translation_languages(word.id) %}
+          <h3>{{ translation.language.label }}</h3>
+          {# ----------- #}
+          <div class="clearfix">
+            {% for definition in word.definitions(translation_part.id, translation_id=translation.id) %}
+              <div class="span-20">
+              <ul>
+                {% if not request.view_args.definition_data == definition.id %}
+	          <li>
+	            {{ definition.definition }}
+                  </li>
+                {% else %}
+	          <li>
+                    <div class="clearfix">
+                      <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
+                        {{ definition_form.definition_id(value=definition.id) }}
+                        <div class="span-16">
+                          {{ definition_form.part(value=translation_part.id) }}
+                          {{ definition_form.translation_id(value=translation.id) }}
+                          {{ definition_form.definition(class="span-16", value=definition.definition) }}
+                        </div>
+                        
+                        <div class="span-2">
+                          {{ definition_form.submit(value="Update") }}
+                        </div>
+                      </div>
+                    </form>
+                  </li>
+                {% endif %}
+                <ol style="padding-left: 0px;">
+                  <div class="clearfix">
+                    {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
+                      <div class="span-2">
+                        {% if not word_relation.word_id_1 == word.id %}
+                          {{ word_relation.word_1.word }}
+                        {% else %}
+                          {{ word_relation.word_2.word }}
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <div class="clearfix">
+                    <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST">
+                      {{ word_relation_form.csrf_token }}
+                      {{ word_relation_form.part(value=translation_part.id) }}
+                      {{ word_relation_form.translation_id(value=translation.id) }}
+                      {{ definition_form.definition_id(value=definition.id) }}
+                      <div class="span-7">
+                        {{ word_relation_form.word.append_entry() }}<br />
+                      </div>
+                      <div class="span-2">
+                        {{ word_relation_form.submit }}
+                      </div>
+                    </form>
+                  </div>
+                </ol>
+              </ul>
+            </div>
+            <div class="span-1 right">
+              <a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
+            </div>
+          {% endfor %}
+          
+  
+        </div>
+
+        <div class="clearfix">
+          {% for word_relation in word.relations(translation_part.id, translation_id=translation.id) %}
+            <div class="span-2">
+              {% if not word_relation.word_id_1 == word.id %}
+                {{ word_relation.word_1.word }}
+              {% else %}
+                {{ word_relation.word_2.word }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        
+        <div class="clearfix">
+          <form action="{{ url_for("word_relation", word_data=word.word) }}" method="POST">
+            {{ word_relation_form.csrf_token }}
+            {{ word_relation_form.part(value=translation_part.id) }}
+            {{ word_relation_form.translation_id(value=translation.id) }}
+            <div class="span-7">
+              {{ word_relation_form.word.append_entry() }}<br />
+            </div>
+            <div class="span-2">
+              {{ word_relation_form.submit }}
+            </div>
+          </form>
+        </div>
+        <div class="clearfix">
+          <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
+            <div class="span-18">
+              {{ definition_form.part(value=translation_part.id) }}
+              {{ definition_form.translation_id(value=translation.id) }}
+              {{ definition_form.definition(class="span-18") }}
+            </div>
+            <div class="span-2">
+              {{ definition_form.submit }}
+            </div>
+          </form>
+        </div>
+        {# ----------- #}
+        {% endfor %}
+      </div>
+    </div>
+    {# end word translation block #}
+
   </div>
 
 

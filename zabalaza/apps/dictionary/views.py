@@ -6,9 +6,9 @@ from flaskext.babel import gettext, ngettext, lazy_gettext as _
 from zabalaza import app, db
 
 from .forms import WordForm, SearchForm, SpeechPartForm, DefinitionForm, \
-    UsageForm, WordRelationForm
+    UsageForm, WordRelationForm, TranslationForm
 from .models import Word, WordPart, Definition, Usage, Part, Relation,\
-    WordRelation
+    WordRelation, Translation
 
 
 @app.route('/words/')
@@ -32,12 +32,14 @@ def view_word(word_data):
     
     words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
     thesaurus_parts = Part.thesaurus_parts(word.language_id)
+    translation_part = Part.translation_part(word.language_id)
 
     ctx = {
         'word': word,
         'speech_parts': speech_parts,
         'words': words,
         'thesaurus_parts': thesaurus_parts,
+        'translation_part': translation_part,
         'search_form': SearchForm(),
     }
     return render_template('dictionary/view_word.html', **ctx)
@@ -55,6 +57,8 @@ def edit_word(word_data, definition_data=None, part_data=None):
         .filter(Part.parent_id == None)
     thesaurus_parts = Part.thesaurus_parts(word.language_id)
 
+    translation_part = Part.translation_part(word.language_id)
+
     speech_part_form = SpeechPartForm()
 
     speech_part_form.word_id = word.id
@@ -63,6 +67,7 @@ def edit_word(word_data, definition_data=None, part_data=None):
     definition_form = DefinitionForm()
     usage_form = UsageForm()
     word_relation_form = WordRelationForm()
+    translation_form = TranslationForm()
 
     words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
 
@@ -77,10 +82,12 @@ def edit_word(word_data, definition_data=None, part_data=None):
         'speech_parts': speech_parts,
         'usage_form': usage_form,
         'thesaurus_parts': thesaurus_parts,
+        'translation_part': translation_part,
         'words': words,
         'word_relation_form': word_relation_form,
         'definition_form': definition_form,
         'speech_part_form': speech_part_form,
+        'translation_form': translation_form,
         'search_form': SearchForm(),
     }
     return render_template('dictionary/edit_word.html', **ctx)
@@ -98,6 +105,10 @@ def add_definition(word_data):
         part_id_data = definition_form.part.data
         sentences_data = usage_form.sentence.data
         sentences_id_data = usage_form.sentence_id.data
+        try:
+            translation_id_data = int(definition_form.translation_id.data)
+        except ValueError:
+            translation_id_data = None
 
         part = Part.query.filter_by(id=part_id_data).first()
         word = Word.query.filter_by(word=word_data).first()
@@ -105,7 +116,7 @@ def add_definition(word_data):
         try:
             definition_id_data = int(definition_id_data)
             definition = Definition.query.filter_by(id=definition_id_data).first()
-        except (ValueError, TypeError):
+        except ValueError:
             definition = None
 
         if definition_data and word is not None:
@@ -116,6 +127,7 @@ def add_definition(word_data):
                     definition=definition_data,
                     word_id=word.id,
                     part_id=part_id_data)
+                definition.translation_id = translation_id_data
             db.session.add(definition)
             db.session.commit()
             for sentence_index, sentence_data in enumerate(sentences_data):
@@ -167,7 +179,10 @@ def word_relation(word_data, form_class = WordRelationForm):
         except ValueError:
             part_data = None
         try:
-            print word_relation_form.definition_id.data
+            translation_id_data = int(word_relation_form.translation_id.data)
+        except ValueError:
+            translation_id_data = None
+        try:
             definition_id_data = int(word_relation_form.definition_id.data)
         except ValueError:
             definition_id_data = None
@@ -187,9 +202,22 @@ def word_relation(word_data, form_class = WordRelationForm):
         
         if word_relation_data is not None:
             word_relation = WordRelation.query\
+                .filter(WordRelation.translation_id==translation_id_data)\
                 .filter(WordRelation.id==word_relation_data).first()
             if word_relation is None:
                 continue
+        else:
+            word_relation = WordRelation.query\
+                .filter(WordRelation.translation_id==translation_id_data)\
+                .filter(WordRelation.word_id_1==word_1.id)\
+                .filter(WordRelation.word_id_2==word_2.id)\
+                .filter(WordRelation.definition_id==definition_id_data).first()
+            if word_relation is not None:
+                flash(gettext(u'The relationship was rejected.'), 'error')
+                continue
+            
+
+        if word_relation is not None:
             word_relation.word_id_1=word_1.id
             word_relation.word_id_2=word_2.id
             word_relation.definition_id = definition_id_data
@@ -199,6 +227,7 @@ def word_relation(word_data, form_class = WordRelationForm):
             word_relation = WordRelation(
                 word_id_1=word_1.id, word_id_2=word_2.id, relation_id=relation.id,
             )
+            word_relation.translation_id = translation_id_data
             word_relation.definition_id = definition_id_data
         if word_relation is not None:
             flash(gettext(u'Word is now related to the specified word.'), 'success')
@@ -212,6 +241,30 @@ def word_relation(word_data, form_class = WordRelationForm):
     if word_relation is None:
         flash(gettext(u'The relationship was rejected.'), 'error')
 
+    return redirect(url_for('edit_word', word_data=word_data))
+
+
+@app.route('/words/translation/language/<word_data>', methods=['POST'])
+def translation_language(word_data):
+    form = TranslationForm(csrf_enabled=False)
+        
+    if form.validate_on_submit():
+        try:
+            part_id_data = int(form.part_id.data)
+        except ValueError:
+            part_id_data = None
+        word_id_data = int(form.word_id.data)
+        language_id_data = int(form.language_id.data)
+        translation = Translation(
+            part_id = part_id_data,
+            word_id = word_id_data,
+            language_id = language_id_data
+        )
+        db.session.add(translation)
+        db.session.commit()
+        flash(gettext(u'The language has been sucessfully added for translation.'), 'success')
+    else:
+        flash(gettext(u'The language has been already added for translation.'), 'error')
     return redirect(url_for('edit_word', word_data=word_data))
 
 
