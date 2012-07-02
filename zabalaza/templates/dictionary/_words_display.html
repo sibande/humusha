@@ -2,7 +2,7 @@
 
   {% for word in words %}
     <div class="span-4{% if loop.index is divisibleby 6 %} last{% endif %}">
-      <a href="{{ url_for('view_word', word_data=word.word) }}">{{ word.word }}</a>
+      <a href="{{ url_for('view_word', language_code=word.language.code, word_data=word.word) }}">{{ word.word }}</a>
     </div>
   {% endfor %}
 

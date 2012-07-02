@@ -93,6 +93,7 @@
 
   <div class="clearfix">
       {% for thesaurus_part in thesaurus_parts %}
+        {% if not thesaurus_part.dependants_exist() %}{% continue %}{% endif %}
         <div class="span-18">
           <h2 class="no-margin">{{ thesaurus_part.label }}</h2>
         </div>
@@ -139,13 +140,16 @@
 
   <div class="clearfix">
     <div class="clearfix">
-      <div class="span-18">
-        <h2 class="no-margin">{{ translation_part.label }}</h2>
-      </div>
+      {% if translation_part.dependants_exist() %}
+        <div class="span-18">
+          <h2 class="no-margin">{{ translation_part.label }}</h2>
+        </div>
+      {% endif %}
     </div>
     
     <div class="clearfix">
       {% for translation in translation_part.translation_languages(word.id) %}
+        {% if not translation_part.dependants_exist() %}{% continue %}{% endif %}
         <h3>{{ translation.language.label }}</h3>
         
         <div class="clearfix">

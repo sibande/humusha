@@ -134,6 +134,7 @@ class SpeechTypeUnique(object):
 class WordForm(Form):
     word = TextField(_(_(u'Word')), validators=[
             Required(), UniqueWord()])
+    language_id = HiddenField(_(u'Language'))
     submit = SubmitField(_(_(u'Add')))
 
 
@@ -178,13 +179,14 @@ class SearchForm(Form):
 
 
 class TranslationForm(Form):
-    language_id = SelectField(_(u'Language'), coerce=int, choices=[
-            (l.id, l.label) for l in Language.query.all()],
+    language_id = SelectField(_(u'Language'), coerce=int, choices=[],
                               validators=[TranslationLanguage()])
     word_id = HiddenField(_(u'Word'))
     part_id = HiddenField(u'Part')
     submit = SubmitField(_(u'Add'))
     
+    def language_choices(self):
+        self.language_id.choices = [(l.id, l.label) for l in Language.query.all()]
 
 class SpeechPartForm(Form):
     part = DynamicSelectField(_(u'Part of speech'), choices=[], coerce=int, validators=[

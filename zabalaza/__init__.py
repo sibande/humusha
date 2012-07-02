@@ -20,6 +20,7 @@ db = SQLAlchemy(app)
 versioned_session(Session)
 
 app.jinja_env.add_extension('jinja2.ext.i18n')
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.jinja_env.install_gettext_callables(gettext, ngettext, newstyle=True)
 
 import zabalaza.views

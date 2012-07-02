@@ -1,4 +1,3 @@
-
 import datetime
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased, joinedload, mapper
@@ -29,7 +28,7 @@ class Word(Versioned, db.Model):
     word = db.Column(db.String(1000))
     language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
 
-    language = db.relationship("Language")
+    language = db.relationship("Language", lazy="joined")
 
     def __init__(self, word, language_id):
         self.word = word
@@ -40,15 +39,27 @@ class Word(Versioned, db.Model):
             .filter(Definition.translation_id==translation_id)\
             .filter(Definition.word_id==self.id)
 
+    @staticmethod
+    def get_word(word_data, language_code):
+        word = Word.query.filter_by(word = word_data)
+        if language_code is not None:
+            word = word.join('language').filter(Language.code==language_code)
+        return word.first()
+
     def relations(self, part_id, definition_id=None, translation_id=None):
         relation = Relation.query.filter(Relation.part_id==part_id).first()
         if relation is None:
             return []
-        word_relations = WordRelation.query.filter(
-            or_(WordRelation.word_id_1==self.id, WordRelation.word_id_2==self.id)
-        ).filter(WordRelation.relation_id==relation.id)\
-        .filter(WordRelation.translation_id==translation_id)\
-        .filter(WordRelation.definition_id==definition_id)
+        word_relations = WordRelation.query\
+            .filter(WordRelation.relation_id==relation.id)\
+            .filter(WordRelation.translation_id==translation_id)\
+            .filter(WordRelation.definition_id==definition_id)
+        if relation.bidirectional:
+            word_relations = word_relations.filter(
+                or_(WordRelation.word_id_1==self.id, WordRelation.word_id_2==self.id)
+            )
+        else:
+            word_relations = word_relations.filter(WordRelation.word_id_1==self.id)
         return word_relations
         
     def __repr__(self):
@@ -84,6 +95,14 @@ class Part(Versioned, db.Model):
             .filter(Part.language_id==language_id).first()
         return part
     
+    def dependants_exist(self):
+        definitions = Definition.query.filter(Definition.part_id==self.id).count()
+        if definitions:
+            return True
+        word_relations  = WordRelation.query.join('relation')\
+            .filter(Relation.part_id==self.id).count()
+        return word_relations > 0
+
     def translation_languages(self, word_id):
         languages = Translation.query.filter(Translation.part_id==self.id)\
             .filter(Translation.word_id==word_id)
@@ -226,7 +245,6 @@ class Relation(Versioned, db.Model):
 
 Part.relation = db.relationship("Relation", uselist=False)
 
-
 class Translation(Versioned, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
@@ -245,6 +263,8 @@ class Translation(Versioned, db.Model):
 
     def __repr__(self):
         return '<Transaltion %r>' % self.id
+
+Definition.translation = db.relationship("Translation")
 
 
 class WordRelation(Versioned, db.Model):
