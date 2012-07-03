@@ -7,7 +7,7 @@
 
   <h1>{{ gettext('Add Words') }}</h1>
   
-  <form action="{{ url_for("add_words") }}" method="POST">
+  <form action="{{ url_for("words.add") }}" method="POST">
     {{ form.csrf_token }}
     <div class="clearfix">
     {{ with_errors(form.word) }}

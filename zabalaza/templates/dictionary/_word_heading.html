@@ -2,7 +2,7 @@
 {% macro word_heading_render(view_mode="read") %}
 <div class="clearfix">
   <div class="column">
-    <h1><a href="{{ url_for("view_word", word_data=word.word) }}">{{ word.word }}</a></h1>
+    <h1><a href="{{ url_for("words.view", word_data=word.word) }}">{{ word.word }}</a></h1>
   </div>
   <div class="span-1">
     &nbsp;
@@ -15,11 +15,11 @@
   <div class="prepend-18" >
     <div class="clearfix right">
       <div class="caps">
-        <a href="{{ url_for("word_history", word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
+        <a href="{{ url_for("words.history", word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
         {% if view_mode == "edit" %}
-          <a href="{{ url_for("view_word", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
+          <a href="{{ url_for("words.view", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
         {% else %}
-          <a href="{{ url_for("edit_word", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Edit mode') }}</a>
+          <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Edit mode') }}</a>
         {% endif %}
       </div>
       <br />

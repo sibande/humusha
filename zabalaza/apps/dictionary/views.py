@@ -1,9 +1,9 @@
 from flask import render_template, flash, request, redirect, url_for, abort,\
-    session
+    session, Blueprint
 from werkzeug.datastructures import MultiDict
 from flaskext.babel import gettext, ngettext, lazy_gettext as _
 
-from zabalaza import app, db
+from zabalaza import db
 
 from .forms import WordForm, SearchForm, SpeechPartForm, DefinitionForm, \
     UsageForm, WordRelationForm, TranslationForm
@@ -11,8 +11,11 @@ from .models import Word, WordPart, Definition, Usage, Part, Relation,\
     WordRelation, Translation, Language
 
 
-@app.route('/words/')
-def words():
+words = Blueprint('words', __name__)
+
+
+@words.route('/')
+def index():
     words = Word.query.order_by('word.id DESC').limit(600).all()
     
     ctx = {
@@ -22,9 +25,9 @@ def words():
     return render_template('dictionary/words.html', **ctx)
 
 
-@app.route('/words/<word_data>', methods=['GET', 'POST'])
-@app.route('/words/<language_code>/<word_data>', methods=['GET', 'POST'])
-def view_word(word_data, language_code=None):
+@words.route('/<word_data>', methods=['GET', 'POST'])
+@words.route('/<language_code>/<word_data>', methods=['GET', 'POST'])
+def view(word_data, language_code=None):
     word = Word.get_word(word_data, language_code)
     if word is None:
         abort(404)
@@ -46,13 +49,13 @@ def view_word(word_data, language_code=None):
     return render_template('dictionary/view_word.html', **ctx)
 
 
-@app.route('/words/edit/<word_data>/', methods=['GET', 'POST'])
-@app.route('/words/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
-@app.route('/words/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
-@app.route('/words/<language_code>/edit/<word_data>/', methods=['GET', 'POST'])
-@app.route('/words/<language_code>/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
-@app.route('/words/<language_code>/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
-def edit_word(word_data, definition_data=None, part_data=None, language_code=None):
+@words.route('/words/edit/<word_data>/', methods=['GET', 'POST'])
+@words.route('/words/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
+@words.route('/words/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
+@words.route('/words/<language_code>/edit/<word_data>/', methods=['GET', 'POST'])
+@words.route('/<language_code>/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
+@words.route('/<language_code>/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
+def edit(word_data, definition_data=None, part_data=None, language_code=None):
     word = Word.get_word(word_data, language_code)
     if word is None:
         abort(404)
@@ -98,8 +101,8 @@ def edit_word(word_data, definition_data=None, part_data=None, language_code=Non
     return render_template('dictionary/edit_word.html', **ctx)
 
 
-@app.route('/words/add_definition/<word_data>', methods=['POST'])
-@app.route('/words/<language_code>/add_definition/<word_data>', methods=['POST'])
+@words.route('/add_definition/<word_data>', methods=['POST'])
+@words.route('/<language_code>/add_definition/<word_data>', methods=['POST'])
 def add_definition(word_data, language_code=None):
     word = Word.get_word(word_data, language_code)
     if word is None:
@@ -163,17 +166,17 @@ def add_definition(word_data, language_code=None):
     else:
         flash(gettext(u'Definition not added.'), 'error')
 
-    return redirect(url_for('edit_word', language_code=language_code, word_data=word_data))
+    return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
 
 
-@app.route('/words/edit/relation/<word_data>', methods=['POST'])
-@app.route('/words/<language_code>/edit/relation/<word_data>', methods=['POST'])
-def word_relation(word_data, language_code=None, form_class = WordRelationForm):
+@words.route('/edit/relation/<word_data>', methods=['POST'])
+@words.route('/<language_code>/edit/relation/<word_data>', methods=['POST'])
+def relation(word_data, language_code=None, form_class = WordRelationForm):
     word_relation_form = form_class()
     
     word_1 = Word.get_word(word_data, language_code)
     if word_1 is None:
-        return redirect(url_for('edit_word', language_code=language_code, word_data=word_data))
+        return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
 
     word_relation_form.word_id = word_1.id
 
@@ -258,18 +261,18 @@ def word_relation(word_data, language_code=None, form_class = WordRelationForm):
     if word_relation is None:
         flash(gettext(u'The relationship was rejected.'), 'error')
 
-    return redirect(url_for('edit_word', language_code=language_code, word_data=word_data))
+    return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
 
 
-@app.route('/words/translation/language/<word_data>', methods=['POST'])
-@app.route('/words/<language_code>/translation/language/<word_data>', methods=['POST'])
+@words.route('/translation/language/<word_data>', methods=['POST'])
+@words.route('/<language_code>/translation/language/<word_data>', methods=['POST'])
 def translation_language(word_data, language_code=None):
     form = TranslationForm(csrf_enabled=False)
     form.language_choices()
 
     word = Word.get_word(word_data, language_code)
     if word is None:
-        return redirect(url_for('edit_word', language_code=language_code, word_data=word_data))
+        return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
     if form.validate_on_submit():
         try:
             part_id_data = int(form.part_id.data)
@@ -286,11 +289,11 @@ def translation_language(word_data, language_code=None):
         flash(gettext(u'The language has been sucessfully added for translation.'), 'success')
     else:
         flash(gettext(u'The language has been already added for translation.'), 'error')
-    return redirect(url_for('edit_word', language_code=language_code, word_data=word_data))
+    return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
 
 
-@app.route('/words/add', methods=['GET', 'POST'])
-def add_words(form_class=WordForm):
+@words.route('/add', methods=['GET', 'POST'])
+def add(form_class=WordForm):
     form = form_class()
 
     if form.validate_on_submit():
@@ -315,9 +318,9 @@ def add_words(form_class=WordForm):
     return render_template('dictionary/add_words.html', **ctx)
 
 
-@app.route('/words/history/<word_data>')
-@app.route('/words/<language_code>/history/<word_data>')
-def word_history(word_data, language_code=None):
+@words.route('/history/<word_data>')
+@words.route('/<language_code>/history/<word_data>')
+def history(word_data, language_code=None):
     ctx = {
         'search_form': SearchForm(),
     }
@@ -325,8 +328,8 @@ def word_history(word_data, language_code=None):
     return render_template('dictionary/history.html', **ctx)
 
 
-@app.route('/words/search', methods=['GET', 'POST'])
-def search_words(form_class=SearchForm):
+@words.route('/search', methods=['GET', 'POST'])
+def search(form_class=SearchForm):
     form = form_class()
 
     words = Word.query.order_by('word.id DESC').limit(600).all()
@@ -339,7 +342,7 @@ def search_words(form_class=SearchForm):
             word_data = form.word.data
         word = Word.query.filter_by(word = word_data).first()
         if word is not None:
-            return redirect(url_for('view_word', word_data=word_data))
+            return redirect(url_for('words.view', word_data=word_data))
         words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
     else:
         if request.method == 'POST':

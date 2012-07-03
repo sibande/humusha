@@ -15,13 +15,13 @@
 	<div id="menu" class="span-11">
 	  <ul>
 	    <li>
-	      <a href="{{ url_for("words") }}">{{ gettext('Words') }}</a>
+	      <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
 	    </li>
 	    <li>
-	      <a href="{{ url_for("add_words") }}">{{ gettext('Add') }}</a>
+	      <a href="{{ url_for("words.add") }}">{{ gettext('Add') }}</a>
 	    </li>
 	    <li>
-	      <a href="{{ url_for("search_words") }}">{{ gettext('Search') }}</a>
+	      <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a>
 	    </li>
 	  </ul>
 	</div>
