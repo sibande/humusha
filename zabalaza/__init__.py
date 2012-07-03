@@ -28,10 +28,10 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.jinja_env.install_gettext_callables(gettext, ngettext, newstyle=True)
 
 import zabalaza.views
-import zabalaza.apps.dictionary.views
-from zabalaza.apps.dictionary.models import Language
+import zabalaza.apps.words.views
+from zabalaza.apps.words.models import Language
 
-from apps.dictionary.views import words as words
+from apps.words.views import words as words
 
 app.register_blueprint(words, url_prefix='/words')
 

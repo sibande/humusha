@@ -3,7 +3,7 @@
 {% block content %}
 
   {# word heading and main actions (edit/history/discuss?) #}
-  {% from "dictionary/_word_heading.html" import word_heading_render with context %}
+  {% from "words/_word_heading.html" import word_heading_render with context %}
   {{ word_heading_render(view_mode="edit") }}
 
 
@@ -503,7 +503,7 @@
   </div>
 </div>
       
-  {% include "dictionary/_words_display.html" %}
+  {% include "words/_words_display.html" %}
       
 {% endblock %}
 

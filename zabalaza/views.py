@@ -2,8 +2,8 @@ from flask import render_template, session, request, redirect, flash
 
 from flaskext.babel import gettext, ngettext, lazy_gettext as _
 from zabalaza import app
-from apps.dictionary.forms import WordForm, SearchForm
-from apps.dictionary.models import Language
+from apps.words.forms import WordForm, SearchForm
+from apps.words.models import Language
 
 @app.route('/')
 def home():

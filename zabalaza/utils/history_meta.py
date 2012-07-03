@@ -7,7 +7,7 @@ from sqlalchemy import Table, Column, ForeignKeyConstraint, Integer, DateTime
 from sqlalchemy import event
 from sqlalchemy.orm.properties import RelationshipProperty
 
-# from zabalaza.apps.dictionary.models import Change
+# from zabalaza.apps.words.models import Change
 
 def col_references_table(col, table):
     for fk in col.foreign_keys:
@@ -184,7 +184,9 @@ def create_version(obj, session, before_flush = False, deleted = False, new = Fa
         action = 'create'
     else:
         action = 'update'
-    from zabalaza.apps.dictionary.models import Change
+
+    from zabalaza.apps.words.models import Change
+
     change = Change(
         row_id = obj.id,
         word_id = None,

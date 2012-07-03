@@ -22,7 +22,7 @@ def index():
         'words': words,
         'search_form': SearchForm(),
     }
-    return render_template('dictionary/words.html', **ctx)
+    return render_template('words/words.html', **ctx)
 
 
 @words.route('/<word_data>', methods=['GET', 'POST'])
@@ -46,7 +46,7 @@ def view(word_data, language_code=None):
         'translation_part': translation_part,
         'search_form': SearchForm(),
     }
-    return render_template('dictionary/view_word.html', **ctx)
+    return render_template('words/view_word.html', **ctx)
 
 
 @words.route('/words/edit/<word_data>/', methods=['GET', 'POST'])
@@ -98,7 +98,7 @@ def edit(word_data, definition_data=None, part_data=None, language_code=None):
         'translation_form': translation_form,
         'search_form': SearchForm(),
     }
-    return render_template('dictionary/edit_word.html', **ctx)
+    return render_template('words/edit_word.html', **ctx)
 
 
 @words.route('/add_definition/<word_data>', methods=['POST'])
@@ -315,7 +315,7 @@ def add(form_class=WordForm):
         'search_form': SearchForm(),
     }
     
-    return render_template('dictionary/add_words.html', **ctx)
+    return render_template('words/add_words.html', **ctx)
 
 
 @words.route('/history/<word_data>')
@@ -325,7 +325,7 @@ def history(word_data, language_code=None):
         'search_form': SearchForm(),
     }
     
-    return render_template('dictionary/history.html', **ctx)
+    return render_template('words/history.html', **ctx)
 
 
 @words.route('/search', methods=['GET', 'POST'])
@@ -354,4 +354,4 @@ def search(form_class=SearchForm):
         'search_form': form,
     }
     
-    return render_template('dictionary/search_words.html', **ctx)
+    return render_template('words/search_words.html', **ctx)
