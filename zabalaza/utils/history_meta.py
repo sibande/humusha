@@ -83,6 +83,7 @@ def _history_mapper(local_mapper):
             polymorphic_on=polymorphic_on,
             polymorphic_identity=local_mapper.polymorphic_identity
             )
+    m.class_.__unicode__ = cls.__unicode__.im_func
     cls.__history_mapper__ = m
 
     if not super_history_mapper:
@@ -148,14 +149,16 @@ def create_version(obj, session, before_flush = False, deleted = False, new = Fa
 
             a, u, d = attributes.get_history(obj, prop.key)
 
+            c = attributes.get_attribute(obj, prop.key)
+
             if d:
-                attr[hist_col.key] = d[0]
+                attr[hist_col.key] = c
                 obj_changed = True
             elif u:
-                attr[hist_col.key] = u[0]
+                attr[hist_col.key] = c
             else:
                 # if the attribute had no value.
-                attr[hist_col.key] = a[0]
+                attr[hist_col.key] = c
                 obj_changed = True
 
     if not obj_changed:
@@ -188,15 +191,15 @@ def create_version(obj, session, before_flush = False, deleted = False, new = Fa
     from zabalaza.apps.words.models import Change
 
     change = Change(
-        row_id = obj.id,
-        word_id = None,
-        version = obj.version,
-        model = obj.__class__.__name__,
-        action = action
+        row_id=obj.id,
+        word_id=obj.dependant_word_id,
+        version=obj.version,
+        model=obj.__class__.__name__,
+        action=action
     )
     session.add(change)
-    if new:
-        hist.version = 0
+    # if new:
+    #     hist.version = 0
     session.add(hist)
     obj.version += 1
     session.add(obj)

@@ -14,10 +14,17 @@ class Language(Versioned, db.Model):
     label = db.Column(db.String(1000))
     code = db.Column(db.String(20))
     
-    def __init__(self, name, label, code):
+    def __init__(self, name=None, label=None, code=None):
         self.name = name
         self.code = code
         self.label = label
+
+    @property
+    def dependant_word_id(self):
+        return None
+
+    def __unicode__(self):
+        return u'{0}'.format(self.label)
 
     def __repr__(self):
         return '<Language {0} ({1})>'.format(self.name, self.code)
@@ -30,7 +37,7 @@ class Word(Versioned, db.Model):
 
     language = db.relationship("Language", lazy="joined")
 
-    def __init__(self, word, language_id):
+    def __init__(self, word=None, language_id=None):
         self.word = word
         self.language_id = language_id
 
@@ -61,6 +68,13 @@ class Word(Versioned, db.Model):
         else:
             word_relations = word_relations.filter(WordRelation.word_id_1==self.id)
         return word_relations
+
+    @property
+    def dependant_word_id(self):
+        return self.id
+
+    def __unicode__(self):
+        return u'{0}'.format(self.word)
         
     def __repr__(self):
         return '<Word %r>' % self.word
@@ -75,7 +89,7 @@ class Part(Versioned, db.Model):
 
     parent = db.relationship("Part", remote_side=[id])
     
-    def __init__(self, name, label, parent_id):
+    def __init__(self, name=None, label=None, parent_id=None):
         self.name = name
         self.label = label
         self.parent_id = parent_id
@@ -103,10 +117,17 @@ class Part(Versioned, db.Model):
             .filter(Relation.part_id==self.id).count()
         return word_relations > 0
 
+    @property
+    def dependant_word_id(self):
+        return None
+
     def translation_languages(self, word_id):
         languages = Translation.query.filter(Translation.part_id==self.id)\
             .filter(Translation.word_id==word_id)
         return languages
+
+    def __unicode__(self):
+        return u'{0}'.format(self.label)
 
     def __repr__(self):
         return '<Part of speech %r>' % self.label
@@ -123,11 +144,19 @@ class Definition(Versioned, db.Model):
     word = db.relationship("Word")
     part = db.relationship("Part")
 
-    def __init__(self, definition, word_id, part_id):
+    def __init__(self, definition=None, word_id=None,
+                 part_id=None):
         self.definition = definition
         self.word_id = word_id
         self.part_id = part_id
-        
+
+    @property
+    def dependant_word_id(self):
+        return self.word_id
+    
+    def __unicode__(self):
+        return u'{0}'.format(self.definition)
+
     def __repr__(self):
         return '<Definition %r>' % self.definition
 
@@ -137,9 +166,16 @@ class Etymology(Versioned, db.Model):
     word_id = db.Column(db.Integer, db.ForeignKey('word.id'))
     etymology = db.Column(db.Text)
     
-    def __init__(self, word_id, etymology):
+    def __init__(self, word_id=None, etymology=None):
         self.word_id = word_id
         self.etymology = etymology
+
+    @property
+    def dependant_word_id(self):
+        return self.word_id
+
+    def __unicode__(self):
+        return u'{0}'.format(self.etymology)
         
     def __repr__(self):
         return '<Etymology %r>' % self.etymology[0:50]
@@ -154,12 +190,39 @@ class Change(db.Model):
     action = db.Column(db.String(1000))
     created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now)
     
-    def __init__(self, row_id, word_id, version, model, action):
+    def __init__(self, row_id=None, word_id=None, version=None,
+                 model=None, action=None):
         self.row_id = row_id
         self.word_id = word_id
         self.version = version
         self.model = model
         self.action = action
+
+    @property
+    def prev_revision(self):
+        revision = Change.query.filter(Change.row_id==self.row_id)\
+            .filter(Change.word_id==self.word_id)\
+            .filter(Change.version==self.version-1)\
+            .filter(Change.model==self.model).first()
+        return revision
+
+    def history_object(self):
+        """The revision model object from the history table or model
+        (eg. WordHistory, PartHistory ...)"""
+        history_mapper = globals()[self.model].__history_mapper__
+        history_cls = history_mapper.class_
+        
+        history_obj = history_cls.query.filter_by(id=self.row_id)\
+            .filter_by(version=self.version).first()
+
+        return history_obj
+        
+    @staticmethod
+    def word_revisions(word_id):
+        """Gets all changes of objects that have this word_id as a dependant"""
+        revisions = Change.query.filter(Change.word_id==word_id)\
+            .order_by("change.created DESC")
+        return revisions
         
     def __repr__(self):
         return '<Change %r>' % self.word_id
@@ -173,9 +236,19 @@ class Usage(Versioned, db.Model):
     
     definition = db.relationship("Definition")
     
-    def __init__(self, sentence, definition_id):
+    def __init__(self, sentence=None, definition_id=None):
         self.sentence = sentence
         self.definition_id = definition_id
+
+    @property
+    def dependant_word_id(self):
+        # self.definition?
+        definition = Definition.query\
+            .filter(Definition.id==self.definition_id).first()
+        return definition.dependant_word_id
+
+    def __unicode__(self):
+        return u'{0}'.format(self.sentence)
         
     def __repr__(self):
         return '<Sentence %r>' % self.definition_id
@@ -193,14 +266,21 @@ class WordPart(Versioned, db.Model):
     word = db.relationship("Word", lazy="joined")
     part = db.relationship("Part", lazy="joined")
 
-    def __init__(self, word_id, part_id):
+    def __init__(self, word_id=None, part_id=None):
         self.word_id = word_id
         self.part_id = part_id
+
+    @property
+    def dependant_word_id(self):
+        return self.word_id
 
     @property
     def part_types(self):
         return self.query.join(Part).filter(Part.parent_id==self.part_id)\
             .filter('word_part.word_id={0}'.format(self.word_id))
+
+    def __unicode__(self):
+        return u'{0}'.format(self.id)
 
     def __repr__(self):
         return '<Word part of speech %r>' % self.word_id
@@ -214,7 +294,7 @@ class Relation(Versioned, db.Model):
     
     part = db.relationship("Part", lazy="joined")
 
-    def __init__(self, part_id, bidirectional, limit):
+    def __init__(self, part_id=None, bidirectional=None, limit=None):
         self.part_id = part_id
         self.bidirectional = bidirectional
         self.limit_ = limit
@@ -239,6 +319,13 @@ class Relation(Versioned, db.Model):
         relation_limit = self.limit_ if not self.bidirectional else self.limit_*2
         
         return not word_relations_count < relation_limit;
+
+    @property
+    def dependant_word_id(self):
+        return None
+
+    def __unicode__(self):
+        return u'{0}'.format(self.part_id)
     
     def __repr__(self):
         return '<Relation %r>' % self.part_id
@@ -256,10 +343,17 @@ class Translation(Versioned, db.Model):
     word = db.relationship("Word")
     part = db.relationship("Part")
     
-    def __init__(self, word_id, language_id, part_id):
+    def __init__(self, word_id=None, language_id=None, part_id=None):
         self.word_id = word_id
         self.language_id = language_id
         self.part_id = part_id
+
+    @property
+    def dependant_word_id(self):
+        return self.word_id
+
+    def __unicode__(self):
+        return u'{0}'.format(self.part_id)
 
     def __repr__(self):
         return '<Transaltion %r>' % self.id
@@ -291,10 +385,32 @@ class WordRelation(Versioned, db.Model):
     relation = db.relationship("Relation", lazy="joined")
     translation = db.relationship("Translation", lazy="joined")
 
-    def __init__(self, word_id_1, word_id_2, relation_id):
+    def __init__(self, word_id_1=None, word_id_2=None, relation_id=None):
         self.word_id_1 = word_id_1
         self.word_id_2 = word_id_2
         self.relation_id = relation_id
+
+    @property
+    def dependant_word_id(self):
+        """This is a bit tricky, both words can be considered "dependant words",
+        but word_id_1 is the main word."""
+        return self.word_id_1
+
+    def __unicode__(self):
+        word_history_cls = globals()['Word'].__history_mapper__.class_
+        word_1 = word_history_cls.query.filter_by(id=self.word_id_1)
+        word_2 = word_history_cls.query.filter_by(id=self.word_id_2)
+
+        word_1 = word_1.filter(
+            word_history_cls.created<self.created+datetime.timedelta(seconds=60)
+        ).order_by('word_history.created DESC').first()
+        word_2 = word_2.filter(
+            word_history_cls.created<self.created+datetime.timedelta(seconds=60)
+        ).order_by('word_history.created DESC').first()
+        # I don't expect the part ID to change
+        relation = Relation.query.filter_by(id=self.relation_id).first()
+
+        return u'{0} <em>{1} of</em> {2}'.format(word_1.word, relation.part.label.lower(), word_2.word)
 
     def __repr__(self):
         return '<Word relation %r:%r:%r>' % self.relation_id, \
@@ -358,7 +474,6 @@ def zabalaza_pre_populate():
         _languages[language.code] = language.id
 
     for code, language_id in _languages.iteritems():
-        print '.fixtures.parts_{0}'.format(code)
         try:
             _temp_import = __import__('fixtures.parts_{0}'.format(code),
                                       globals(), locals(), ['data'], -1)
