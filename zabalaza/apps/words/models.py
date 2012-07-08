@@ -1,7 +1,8 @@
 import datetime
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased, joinedload, mapper
-from flask import session
+from flask import session, url_for
+from jinja2 import Markup
 
 from zabalaza import db
 
@@ -74,7 +75,12 @@ class Word(Versioned, db.Model):
         return self.id
 
     def __unicode__(self):
-        return u'{0}'.format(self.word)
+        language = Language.query.filter(Language.id==self.language_id).first()
+        markup = Markup(u'<a href="{0}">{1}</a>').format(
+            url_for(
+                'words.view', word_data=self.word, language_code=language.code
+            ), self.word)
+        return markup 
         
     def __repr__(self):
         return '<Word %r>' % self.word
@@ -280,7 +286,17 @@ class WordPart(Versioned, db.Model):
             .filter('word_part.word_id={0}'.format(self.word_id))
 
     def __unicode__(self):
-        return u'{0}'.format(self.id)
+        word_history_cls = globals()['Word'].__history_mapper__.class_
+
+        part = Part.query.filter_by(id=self.part_id).first()
+        word = word_history_cls.query.filter_by(id=self.word_id)\
+            .filter_by(version=self.version).first()
+        language = Language.query.filter(Language.id==word.language_id).first()
+        
+        markup = Markup(u'<a href="{0}">{1}</a> <em>under</em> {2}').format(
+            url_for('words.view', word_data=word.word,
+                    language_code=language.code), word.word, part.label)
+        return markup
 
     def __repr__(self):
         return '<Word part of speech %r>' % self.word_id
@@ -325,7 +341,9 @@ class Relation(Versioned, db.Model):
         return None
 
     def __unicode__(self):
-        return u'{0}'.format(self.part_id)
+        part = Part.query.filter_by(id=self.part_id).first()
+        markup = Markup(u'{0} <em>relationship</em>')
+        return markup.format(part.label)
     
     def __repr__(self):
         return '<Relation %r>' % self.part_id
@@ -353,7 +371,19 @@ class Translation(Versioned, db.Model):
         return self.word_id
 
     def __unicode__(self):
-        return u'{0}'.format(self.part_id)
+        word_history_cls = globals()['Word'].__history_mapper__.class_
+
+        part = Part.query.filter_by(id=self.part_id).first()
+        word = word_history_cls.query.filter(word_history_cls.id==self.word_id)\
+            .filter(word_history_cls.version==self.version).first()
+        language = Language.query.filter(Language.id==self.language_id).first()
+        
+        markup = Markup(u'Added {0} to <a href="{1}">{2}</a> for translations')
+        markup = markup.format(language.label, url_for(
+                'words.view', word_data=word.word, language_code=language.code),
+                               word.word)
+        return markup 
+
 
     def __repr__(self):
         return '<Transaltion %r>' % self.id
@@ -398,19 +428,31 @@ class WordRelation(Versioned, db.Model):
 
     def __unicode__(self):
         word_history_cls = globals()['Word'].__history_mapper__.class_
+
         word_1 = word_history_cls.query.filter_by(id=self.word_id_1)
         word_2 = word_history_cls.query.filter_by(id=self.word_id_2)
 
         word_1 = word_1.filter(
             word_history_cls.created<self.created+datetime.timedelta(seconds=60)
         ).order_by('word_history.created DESC').first()
+        language_1 = Language.query.filter_by(id=word_1.language_id).first()
         word_2 = word_2.filter(
             word_history_cls.created<self.created+datetime.timedelta(seconds=60)
         ).order_by('word_history.created DESC').first()
+        language_2 = Language.query.filter_by(id=word_2.language_id).first()
         # I don't expect the part ID to change
         relation = Relation.query.filter_by(id=self.relation_id).first()
 
-        return u'{0} <em>{1} of</em> {2}'.format(word_1.word, relation.part.label.lower(), word_2.word)
+        markup = Markup(
+            u'<a href="{0}">{1}</a> <em>{2} of</em> <a href="{3}">{4}</a>'
+        )
+        markup = markup.format(
+            url_for('words.view', word_data=word_1.word, language_code=language_1.code),
+            word_1.word, relation.part.label.lower(),
+            url_for('words.view', word_data=word_2.word, language_code=language_2.code),
+            word_2.word
+        )
+        return markup
 
     def __repr__(self):
         return '<Word relation %r:%r:%r>' % self.relation_id, \
