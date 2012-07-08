@@ -15,8 +15,10 @@
   <div class="prepend-18" >
     <div class="clearfix right">
       <div class="caps">
-        <a href="{{ url_for("words.history", word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
-        {% if view_mode == "edit" %}
+        {% if not view_mode == "history" %}
+          <a href="{{ url_for("words.history", language_code=word.language.code, word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
+        {% endif %}
+        {% if not view_mode == "read" %}
           <a href="{{ url_for("words.view", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
         {% else %}
           <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Edit mode') }}</a>

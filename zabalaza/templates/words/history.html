@@ -1,10 +1,34 @@
 {% extends "layout.html" %}
 {% block title %}History{% endblock %}
 {% block content %}
-  <h1>{{ gettext('History') }}</h1>
+
+  {% from "words/_word_heading.html" import word_heading_render with context %}
+  {{ word_heading_render(view_mode="history") }}
+
+  <h2>{{ gettext('History') }}</h2>
   
-  
-  <hr />
-  
-  
+  {% for revision in revisions %}
+    <div class="clearfix">
+      <div class="span-9">
+        {% set prev_revision = revision.prev_revision %}
+        {% if prev_revision %}
+          {{ prev_revision.history_object() }}
+        {% endif %}
+        &nbsp;
+      </div>
+      <div class="span-9">
+        {{ revision.history_object() }}
+        &nbsp;
+      </div>
+      <div class="span-5">
+        <div class="span-1">
+          {{ revision.action }}
+        </div>
+        <div class="span-4 last">
+          {{ revision.created|datetimeformat }}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
 {% endblock %}

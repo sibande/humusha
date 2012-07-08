@@ -8,7 +8,7 @@ from zabalaza import db
 from .forms import WordForm, SearchForm, SpeechPartForm, DefinitionForm, \
     UsageForm, WordRelationForm, TranslationForm
 from .models import Word, WordPart, Definition, Usage, Part, Relation,\
-    WordRelation, Translation, Language
+    WordRelation, Translation, Language, Change
 
 
 words = Blueprint('words', __name__)
@@ -49,10 +49,7 @@ def view(word_data, language_code=None):
     return render_template('words/view_word.html', **ctx)
 
 
-@words.route('/words/edit/<word_data>/', methods=['GET', 'POST'])
-@words.route('/words/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
-@words.route('/words/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
-@words.route('/words/<language_code>/edit/<word_data>/', methods=['GET', 'POST'])
+@words.route('/<language_code>/edit/<word_data>/', methods=['GET', 'POST'])
 @words.route('/<language_code>/edit/<word_data>/p<int:part_data>', methods=['GET', 'POST'])
 @words.route('/<language_code>/edit/<word_data>/d<int:definition_data>', methods=['GET', 'POST'])
 def edit(word_data, definition_data=None, part_data=None, language_code=None):
@@ -101,7 +98,6 @@ def edit(word_data, definition_data=None, part_data=None, language_code=None):
     return render_template('words/edit_word.html', **ctx)
 
 
-@words.route('/add_definition/<word_data>', methods=['POST'])
 @words.route('/<language_code>/add_definition/<word_data>', methods=['POST'])
 def add_definition(word_data, language_code=None):
     word = Word.get_word(word_data, language_code)
@@ -169,7 +165,6 @@ def add_definition(word_data, language_code=None):
     return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
 
 
-@words.route('/edit/relation/<word_data>', methods=['POST'])
 @words.route('/<language_code>/edit/relation/<word_data>', methods=['POST'])
 def relation(word_data, language_code=None, form_class = WordRelationForm):
     word_relation_form = form_class()
@@ -264,7 +259,6 @@ def relation(word_data, language_code=None, form_class = WordRelationForm):
     return redirect(url_for('words.edit', language_code=language_code, word_data=word_data))
 
 
-@words.route('/translation/language/<word_data>', methods=['POST'])
 @words.route('/<language_code>/translation/language/<word_data>', methods=['POST'])
 def translation_language(word_data, language_code=None):
     form = TranslationForm(csrf_enabled=False)
@@ -318,11 +312,17 @@ def add(form_class=WordForm):
     return render_template('words/add_words.html', **ctx)
 
 
-@words.route('/history/<word_data>')
 @words.route('/<language_code>/history/<word_data>')
 def history(word_data, language_code=None):
+    word = Word.get_word(word_data, language_code)
+    if word is None:
+        abort(404)
+    revisions = Change.word_revisions(word.id)
+
     ctx = {
         'search_form': SearchForm(),
+        'word': word,
+        'revisions': revisions,
     }
     
     return render_template('words/history.html', **ctx)

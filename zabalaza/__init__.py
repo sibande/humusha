@@ -1,7 +1,9 @@
 from flask import Flask, session, request_started
+
 from flask_sqlalchemy import SQLAlchemy, Session
 from flaskext.babel import gettext, ngettext, lazy_gettext
 from flaskext.babel import Babel
+
 from flask_debugtoolbar import DebugToolbarExtension
 
 from zabalaza.utils.history_meta import versioned_session
@@ -12,27 +14,35 @@ app = Flask(__name__)
 babel = Babel(app)
 
 app.secret_key = '\xbb#\xbb\x1b\x91\x15\xd6\xf7\xc7~\xa18\x08D\xed\xc37$,\x10\xc6\x8b\xbf\xa2'
+# Debug
+# app.debug = True
+# toolbar = DebugToolbarExtension(app)
 
+# SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:' + \
     open('db.passwd', 'r').read()+'@localhost/zabalaza_test'
 app.config['SQLALCHEMY_ECHO'] = True
-app.debug = True
-
 db = SQLAlchemy(app)
+# Model versioning
 versioned_session(Session)
 
-toolbar = DebugToolbarExtension(app)
-
+# Templates
 app.jinja_env.add_extension('jinja2.ext.i18n')
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.jinja_env.install_gettext_callables(gettext, ngettext, newstyle=True)
 
-import zabalaza.views
-import zabalaza.apps.words.views
-from zabalaza.apps.words.models import Language
+def datetimeformat(value, format='%Y-%m-%d at %H:%M'):
+    from babel.dates import format_date, format_datetime, format_time
+    return format_datetime(value, locale='en_US')
+app.jinja_env.filters['datetimeformat'] = datetimeformat
 
+# Views
+import zabalaza.views
+
+from zabalaza.apps.words.models import Language
 from apps.words.views import words as words
 
+# Blueprints
 app.register_blueprint(words, url_prefix='/words')
 
 
