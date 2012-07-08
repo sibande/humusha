@@ -8,7 +8,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from zabalaza.utils.history_meta import versioned_session
 
-
 app = Flask(__name__)
 
 babel = Babel(app)
@@ -40,6 +39,7 @@ app.jinja_env.filters['datetimeformat'] = datetimeformat
 import zabalaza.views
 
 from zabalaza.apps.words.models import Language
+from zabalaza.apps.words.forms import SearchForm
 from apps.words.views import words as words
 
 # Blueprints
@@ -60,7 +60,10 @@ request_started.connect(_set_default_language, app)
 
 @app.context_processor
 def _template_ctx_languages():
-    return dict(languages=Language.query.all())
+    return dict(
+        languages=Language.query.all(),
+        search_form=SearchForm(),
+    )
 
 
 @babel.localeselector

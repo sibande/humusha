@@ -20,7 +20,6 @@ def index():
     
     ctx = {
         'words': words,
-        'search_form': SearchForm(),
     }
     return render_template('words/words.html', **ctx)
 
@@ -44,7 +43,6 @@ def view(word_data, language_code=None):
         'words': words,
         'thesaurus_parts': thesaurus_parts,
         'translation_part': translation_part,
-        'search_form': SearchForm(),
     }
     return render_template('words/view_word.html', **ctx)
 
@@ -93,7 +91,6 @@ def edit(word_data, definition_data=None, part_data=None, language_code=None):
         'definition_form': definition_form,
         'speech_part_form': speech_part_form,
         'translation_form': translation_form,
-        'search_form': SearchForm(),
     }
     return render_template('words/edit_word.html', **ctx)
 
@@ -306,7 +303,6 @@ def add(form_class=WordForm):
     ctx = {
         'form': form,
         'words': words,
-        'search_form': SearchForm(),
     }
     
     return render_template('words/add_words.html', **ctx)
