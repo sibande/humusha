@@ -29,3 +29,4 @@ a:hover { text-decoration: underline; color: #A52A2A; }
 
 input { font-size: 1.6em; padding: 0.2em;}
 select { padding: 5px; }
+.center { text-align: center; }

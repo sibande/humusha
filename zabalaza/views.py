@@ -8,8 +8,8 @@ from apps.words.models import Language
 @app.route('/')
 def home():
     ctx = {
-        'search_form': SearchForm(),
-        }
+        'form': SearchForm(),
+    }
     return render_template('index.html', **ctx)
 
 

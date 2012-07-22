@@ -1,7 +1,7 @@
 <div>
   <form action="{{ url_for("words.search") }}" method="POST">
     {{ search_form.csrf_token }}
-    {{ search_form.word(class='span-3') }}
+    {{ search_form.word(class='span-3', placeholder="Search") }}
     {{ search_form.submit(style="display:inline-block;line-height:22px;") }}
   </form>
 </div>

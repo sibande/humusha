@@ -1,3 +1,5 @@
+import string
+
 from flask import Flask, session, request_started
 
 from flask_sqlalchemy import SQLAlchemy, Session
@@ -38,7 +40,7 @@ app.jinja_env.filters['datetimeformat'] = datetimeformat
 # Views
 import zabalaza.views
 
-from zabalaza.apps.words.models import Language
+from zabalaza.apps.words.models import Language, Word
 from zabalaza.apps.words.forms import SearchForm
 from apps.words.views import words as words
 
@@ -58,10 +60,19 @@ def _set_default_language(app):
         session['languages'] = dict((l.id, l.code) for l in Language.query.all())
 request_started.connect(_set_default_language, app)
 
+
+def latest_words(value, count=4):
+    print dir(Word)
+    words = Word.query.filter(Word.language_id==int(value))\
+        .order_by('word.id DESC').limit(count)
+    return words
+app.jinja_env.filters['latest_words'] = latest_words
+
 @app.context_processor
 def _template_ctx_languages():
     return dict(
         languages=Language.query.all(),
+        ascii_letters=list(string.ascii_lowercase),
         search_form=SearchForm(),
     )
 

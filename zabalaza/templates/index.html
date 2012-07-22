@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+  <h1>Zabalaza Afrika</h1>
+  <hr />
+  <div class="container">
+    <div class="container center">
+      <strong>
+        <!-- Thanks to en.Wiktionary for the nice wording :) -->
+        A collaborative project to produce a translator, dictionaries,
+        thesauruses and other important written works, for African
+        languages.
+      </strong>
+    </div>
+    <div class="container">
+      <form action="{{ url_for("words.search") }}" method="POST">
+        {{ search_form.csrf_token }}{# {{ form.csrf }} #}
+        <div class="prepend-5 span-12 last">
+          {{ form.word(class='span-12', placeholder="Search or add new words") }}
+        </div>
+        <div class="spa-2">
+          {{ form.submit(style="display:inline-block;line-height:22px;") }}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="container">
+    <h3>{{ gettext("Browse") }}</h3>
+
+      <div class="container">
+        <div class="large center">
+          {% for ascii_letter in ascii_letters %}
+            <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
+            <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+  </div>
+
+  <div class="container">
+    <h3>{{ gettext("Languages") }}</h3>
+    <ul>
+      <div class="container">
+        {% for language in languages %}
+          <div class="column">
+            <li>
+              <a class="" style="line-height:1.8em !important;" href="{{ url_for("words.index", language_code=language.code) }}">{{ language.label }}</a>
+              &nbsp;&nbsp;&nbsp;
+            </li>
+          </div>
+        {% endfor %}
+      </div>
+    </ul>
+    
+  </div>
+    
+  
+{% endblock %}
+
