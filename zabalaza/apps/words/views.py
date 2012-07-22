@@ -15,13 +15,25 @@ words = Blueprint('words', __name__)
 
 
 @words.route('/')
-def index():
+@words.route('/<language_code>/', methods=['GET', 'POST'])
+def index(language_code=None):
     words = Word.query.order_by('word.id DESC').limit(600).all()
     
     ctx = {
         'words': words,
     }
     return render_template('words/words.html', **ctx)
+
+@words.route('/browse/<starts_with>/')
+@words.route('/browse/<starts_with>/<language_code>/', methods=['GET', 'POST'])
+def browse(starts_with, language_code=None):
+    words = Word.query.filter(Word.word.startswith(starts_with))\
+        .order_by('word.id DESC').limit(600).all()
+    
+    ctx = {
+        'words': words,
+    }
+    return render_template('words/browse.html', **ctx)
 
 
 @words.route('/<word_data>', methods=['GET', 'POST'])
@@ -338,7 +350,9 @@ def search(form_class=SearchForm):
             word_data = form.word.data
         word = Word.query.filter_by(word = word_data).first()
         if word is not None:
-            return redirect(url_for('words.view', word_data=word_data))
+            return redirect(url_for('words.view',
+                                    language_code=word.language.code,
+                                    word_data=word_data))
         words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
     else:
         if request.method == 'POST':
