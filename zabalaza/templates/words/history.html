@@ -5,27 +5,29 @@
   {% from "words/_word_heading.html" import word_heading_render with context %}
   {{ word_heading_render(view_mode="history") }}
 
-  <h2>{{ gettext('History') }}</h2>
+  <h3>{{ gettext('History') }}</h3>
   
   {% for revision in revisions %}
-    <div class="clearfix">
-      <div class="span-9">
+    <div class="row-fluid">
+      <div class="span4">
         {% set prev_revision = revision.prev_revision %}
         {% if prev_revision %}
           {{ prev_revision.history_object() }}
         {% endif %}
         &nbsp;
       </div>
-      <div class="span-9">
+      <div class="span5">
         {{ revision.history_object() }}
         &nbsp;
       </div>
-      <div class="span-5">
-        <div class="span-1">
-          {{ revision.action }}
-        </div>
-        <div class="span-4 last">
-          {{ revision.created|datetimeformat }}
+      <div class="span3">
+        <div class="row-fluid">
+          <div class="span3">
+            {{ revision.action }}
+          </div>
+          <div class="span8">
+            {{ revision.created|datetimeformat }}
+          </div>
         </div>
       </div>
     </div>

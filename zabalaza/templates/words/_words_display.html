@@ -1,10 +1,15 @@
-<div class="words-display container clear">
+<div class="row-fluid">
 
-  {% for word in words %}
-    <div class="span-4{% if loop.index is divisibleby 6 %} last{% endif %}">
-      <a href="{{ url_for('words.view', language_code=word.language.code, word_data=word.word) }}">{{ word.word }}</a>
-    </div>
-  {% endfor %}
-
+  <div class="row-fluid">
+    {% for word in words %}
+      <div class="span1">
+        <a href="{{ url_for('words.view', language_code=word.language.code, word_data=word.word) }}">{{ word.word }}</a>
+      </div>
+      {% if loop.index is divisibleby 12 %}
+        </div>
+        <div class="row-fluid">
+      {% endif %}
+    {% endfor %}
+  </div>
 
 </div>

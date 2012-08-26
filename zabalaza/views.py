@@ -3,12 +3,16 @@ from flask import render_template, session, request, redirect, flash
 from flaskext.babel import gettext, ngettext, lazy_gettext as _
 from zabalaza import app
 from apps.words.forms import WordForm, SearchForm
-from apps.words.models import Language
+from apps.words.models import Language, Word
 
 @app.route('/')
 def home():
+    word = Word()
+    featured_words = word.main_featured(4, 0)
+
     ctx = {
         'form': SearchForm(),
+        'featured_words': featured_words,
     }
     return render_template('index.html', **ctx)
 

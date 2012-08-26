@@ -1,14 +1,117 @@
+
+<!DOCTYPE html>
 <html>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/screen.css') }}" type="text/css" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}" type="text/css" media="print" /> 
-  <!--[if lt IE 8]>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/ie.css') }}" type="text/css" />
-  <![endif]-->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}" type="text/css" />
   <head>
     <title>{% block title %}{% endblock %}</title>
   </head>
   <body>
+    {% from "_common.html" import render_language_form with context %}
+
+
+    {% macro with_errors(field) %}
+      <div class="field">
+        <label>{{ field.label }}</label>
+        {% set css_class = kwargs.pop('class', '') %}
+        {% if not css_class %}
+	  {% set css_class = 'clearfix span-17 ' + css_class %}
+	{% else %}
+	  {% set css_class = 'clearfix ' + css_class %}
+	{% endif %}
+        {% if field.errors %}
+	  
+	  <div  class="clearfix">
+            {{ field(class=css_class, **kwargs) }}
+          </div>
+          <div class="notice">{% for error in field.errors %}<div>{{ error|e }}</div>{% endfor %}</div>
+	{% else %}
+	  <div class="clearfix">
+            {{ field(class=css_class, **kwargs) }}
+          </div>
+        {% endif %}
+      </div>
+    {% endmacro %}
+
+      
+    <div class="container-fluid">
+      {# START HEADER #}
+      <div class="row-fluid">
+        <br />
+        <div class="row-fluid show-grid">
+          <div class="span4">
+            {% include "_global_search.html" %}
+          </div>
+          <div class="span1"></div>
+          <div class="span2">
+            <div>
+              {{ render_language_form("app_language") }}
+            </div>
+            <div>
+              {{ render_language_form("language") }}
+            </div>
+          </div>
+          <div class="span1"></div>
+          <div class="span4">
+            <div id="home"><a href="{{ url_for("home") }}">Zabalaza</a></div>
+            <br />
+            <div>The free multi-language dictionary and thesaurus that anyone can edit</div>
+          </div>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span1">
+          <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
+        </div>
+        <div class="span1">
+          <a href="{{ url_for("words.add") }}">{{ gettext('Add') }}</a>
+        </div>
+        <div class="span1">
+          <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a>
+        </div>
+        <div class="span1">
+          <a href="#">{{ gettext('Activity') }}</a>
+        </div>
+        <div class="span1">
+          <a href="#">{{ gettext('Translate') }}</a>
+        </div>
+      </div>
+      {# END HEADER #}
+    </div>
+
+    <div  id="main">
+      <div class="container-fluid">
+        {# START BODY #}
+        
+	{% block content %}{% endblock %}
+              
+        {# END BODY #}
+      </div>
+    </div>
+
+    <div class="container-fluid main">
+      {# START FOOTER #}
+
+      <br />
+      <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
+        <img alt="Creative Commons License" style="border-width:0"
+             src="/static/img/cc-by-sa-88x31.png" /></a>
+        <br />
+        This <span xmlns:dct="http://purl.org/dc/terms/"
+        href="http://purl.org/dc/dcmitype/Text"
+        rel="dct:type">work</span> is licensed under a <a rel="license"
+        href="http://creativecommons.org/licenses/by-sa/3.0/">Creative
+        Commons Attribution-ShareAlike 3.0 Unported License</a>.
+  
+      {# END FOOTER #}
+    </div>
+
+
+    <br />
+    <br />
+    <br />
+    <br />
+{#
     <div class="container clear">
       <div class="container clear">
 	<div id="home" class="span-8"><a href="{{ url_for("home") }}">Zabalaza</a></div>
@@ -31,7 +134,6 @@
 	  </div>
 	</div>
 
-        {# import common macros for extending classes usage #}
         {% from "_common.html" import render_language_form with context %}
 
 	<div id="language" class="span-5 last">
@@ -74,7 +176,7 @@
 	    </div>
 	    {% endif %}
 	  {% endwith %}
-	{% block content %}{% endblock %}
+
       </div>
     </div>
     <br />
@@ -90,9 +192,11 @@
         href="http://creativecommons.org/licenses/by-sa/3.0/">Creative
         Commons Attribution-ShareAlike 3.0 Unported License</a>.
     </div>
+#}
     <script src="{{ url_for('static', filename='js/jquery-1.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.easing.1.3.js') }}"></script>
     <script src="{{ url_for('static', filename='js/default.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.placeholder.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-carousel.js') }}"></script>
   </body>
 </html>

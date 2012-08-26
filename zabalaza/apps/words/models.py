@@ -1,6 +1,7 @@
 import datetime
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased, joinedload, mapper
+from sqlalchemy.sql import func
 from flask import session, url_for
 from jinja2 import Markup
 
@@ -42,10 +43,19 @@ class Word(Versioned, db.Model):
         self.word = word
         self.language_id = language_id
 
-    def definitions(self, part_id, translation_id=None):
-        return Definition.query.filter(Definition.part_id==part_id)\
+    def definitions(self, part_id=None, translation_id=None, limit=None):
+        definitions = Definition.query\
             .filter(Definition.translation_id==translation_id)\
             .filter(Definition.word_id==self.id)
+        if part_id is not None:
+            definitions = definitions.filter(Definition.part_id==part_id)
+        else:
+            definitions = definitions.filter(Definition.word_id==self.id)
+        if limit is not None:
+            print 'helllo  world'
+            print limit
+            definitions = definitions.limit(limit)
+        return definitions
 
     @staticmethod
     def get_word(word_data, language_code):
@@ -70,6 +80,30 @@ class Word(Versioned, db.Model):
             word_relations = word_relations.filter(WordRelation.word_id_1==self.id)
         return word_relations
 
+    def featured(self, language_id=None, limit=2, min_count=2):
+        words = db.session.query(Definition.word_id).join(Definition.word)\
+            .join(Definition.usage_examples)\
+            .filter(Word.language_id==language_id)\
+            .group_by(Definition.word_id)\
+            .having(func.count(Definition.word_id) > min_count)\
+            .having(func.count(Usage.id) > min_count).limit(limit)
+        _words = list()
+        for word_id in words:
+            word = Word.query.filter_by(id=word_id[0]).first()
+            _words.append(word)
+        return _words
+    
+    def main_featured(self, limit=2, min_count=2):
+        """Gets featured words for the homepage carousel"""
+        _featured = dict()
+        if 'languages' not in session:
+            print 'hello world'
+            return _featured
+        for language_id, label in session['languages'].items():
+            words = self.featured(language_id, limit, min_count)
+            _featured[language_id] = words
+        return _featured
+    
     @property
     def dependant_word_id(self):
         return self.id
@@ -99,7 +133,7 @@ class Part(Versioned, db.Model):
         self.name = name
         self.label = label
         self.parent_id = parent_id
-        
+    
     @staticmethod
     def thesaurus_parts(language_id):
         parent_part = aliased(Part)
@@ -159,7 +193,7 @@ class Definition(Versioned, db.Model):
     @property
     def dependant_word_id(self):
         return self.word_id
-    
+
     def __unicode__(self):
         return u'{0}'.format(self.definition)
 

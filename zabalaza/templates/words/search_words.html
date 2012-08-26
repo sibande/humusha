@@ -1,14 +1,22 @@
 {% extends "layout.html" %}
-{% block title %}Search Words{% endblock %}
+{% block title %}Search{% endblock %}
 {% block content %}
-  <h1>{{ gettext('Search Words') }}</h1>
+
+  <h1>{{ gettext('Search') }}</h1>
   
-  <form action="{{ url_for("words.search") }}" method="POST">
+  <hr />
+
+  <form action="{{ url_for("words.search") }}" class="form-search"
+        method="POST">
+
+    {% if form.word.errors %}
+      <div class="notice">
+        {% for error in form.word.errors %}<div>{{ error|e }}</div>{% endfor %}
+      </div>
+    {% endif %}
     {{ search_form.csrf_token }}{# {{ form.csrf }} #}
-    <div class="clearfix">
-    {{ with_errors(form.word) }}
-    </div>
-    {{ form.submit }}
+    {{ form.word(class="span7 input-medium search-query") }}
+    {{ form.submit(class="btn") }}
   </form>
   
   <hr />

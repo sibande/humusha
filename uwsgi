@@ -1,0 +1,1 @@
+uwsgi -s /tmp/zabalaza.sock -w zabalaza:app -H ../env/python-flask/ --catch-exceptions

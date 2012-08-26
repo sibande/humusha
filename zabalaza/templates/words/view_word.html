@@ -6,35 +6,24 @@
   {% from "words/_word_heading.html" import word_heading_render with context %}
   {{ word_heading_render() }}
 
+  <hr />
 
   {% for word_part in speech_parts %}
-    <div class="clearfix">
-      <div class="span-18">
-	<h2 class="no-margin">{{ word_part.part.label }}</h2>
-      </div>
-      <div class="span-6 last">
-{#	<div class="clearfix">
-	  <div class="right"><a href="">+ Add to {{ word_part.part.label|lower }} types</a></div>
-	</div>
-	<div class="clearfix">
-	  <div class="right"><a href="">+ Add tag</a></div>
-	</div>
-#}
-      </div>
+    <div class="row-fluid">
+      <h4 class="no-margin">{{ word_part.part.label }}</h4>
     </div>
-
-    <div class="clearfix">
-      
+    
+    <div class="row-fluid">
       {% for part_type in word_part.part_types %}
-        <div class="clearfix">
-          <div class="column" style="padding-top:14px;">
-            <h3>{{ part_type.part.label }}</h3>
+        <div class="row-fluid">
+          <div class="span2">
+            <h5>{{ part_type.part.label }}</h5>
           </div>
           {% if part_type.part.relation.part_id %}
-            <div class="prepend-1 span-2" style="padding-top:16px;">
+            <div class="span2">
               <em>{{ ngettext("of word", "of words", part_type.part.relation.limit) }}</em>
             </div>
-            <div class="span-8" style="padding:16px 0 0 10px;">
+            <div class="span6">
               {% for word_relation in word.relations(part_type.part.id) %}
                 {% if not word_relation.word_id_1 == word.id %}
                   {{ word_relation.word_1.word }}
@@ -48,7 +37,7 @@
       {% endfor %}
     </div>
 
-    <div class="clearfix">
+    <div class="row-fluid">
       <ul>
 	{% for definition in word_part.word.definitions(word_part.part_id) %}
 	  <li>
@@ -65,68 +54,41 @@
       </ul>
     </div>
 
-{#    <form action="{{ url_for("add_definition", word_data=word.word) }}" name="definition" method="POST">
-      {{ definition_form.part(value=word_part.part_id) }}
-      <div class="clearfix">
-	<div class="span-20">
-	  <div class="span-12">
-	    <label>{{ definition_form.definition.label }}</label>
-	    {{ definition_form.definition(class="span-12") }}
-	  </div>
-
-	  <div class="prepend-12">
-	    <label>{{ usage_form.sentence.label }}</label>
-	    {{ usage_form.sentence }}
-	  </div>
-	</div>
-      </div>
-      <div class="clearfix">
-	<div class="clearfix">
-	  <div class="span-2"> {{ definition_form.submit }}</div>
-	</div>
-	<a href="">+ Add definition</a><br />
-      </div>
-    </form>
-    #}
   {% endfor %}
   
 
-  <div class="clearfix">
+  <div class="row-fluid">
       {% for thesaurus_part in thesaurus_parts %}
         {% if not thesaurus_part.dependants_exist() %}{% continue %}{% endif %}
-        <div class="span-18">
-          <h2 class="no-margin">{{ thesaurus_part.label }}</h2>
+        <div class="row-fluid">
+          <h4 class="no-margin">{{ thesaurus_part.label }}</h4>
         </div>
-        <div class="clearfix">
+        <div class="row-fluid">
           {% for definition in word.definitions(thesaurus_part.id) %}
-            <div class="span-20">
-              <ul>
-                {% if not request.view_args.definition_data == definition.id %}
-	          <li>
-	            {{ definition.definition }}
-                  </li>
-                {% endif %}
-                <ol style="padding-left: 0px;">
-                  <div class="clearfix">
-                    {% for word_relation in word.relations(thesaurus_part.id, definition.id) %}
-                      <div class="span-2">
-                        {% if not word_relation.word_id_1 == word.id %}
-                          {{ word_relation.word_1.word }}
-                        {% else %}
-                          {{ word_relation.word_2.word }}
-                        {% endif %}
-                      </div>
-                    {% endfor %}
+            <ul>
+              {% if not request.view_args.definition_data == definition.id %}
+	        <li>
+                  {{ definition.definition }}
+                </li>
+              {% endif %}
+              <div class="row-fluid">
+                {% for word_relation in word.relations(thesaurus_part.id, definition.id) %}
+                  <div class="span1">
+                    {% if not word_relation.word_id_1 == word.id %}
+                      {{ word_relation.word_1.word }}
+                    {% else %}
+                      {{ word_relation.word_2.word }}
+                    {% endif %}
                   </div>
-                </ol>
-              </ul>
-            </div>
+                {% endfor %}
+              </div>
+            </ul>
           {% endfor %}
         </div>
-        <div class="clearfix">
+        <div class="row-fluid">
           {# global (not belonging to a definition) part words #}
           {% for word_relation in word.relations(thesaurus_part.id) %}
-            <div class="span-2">
+            <div class="span1">
               {% if not word_relation.word_id_1 == word.id %}
                 {{ word_relation.word_1.word }}
               {% else %}
@@ -138,50 +100,46 @@
       {% endfor %}
   </div>
 
-  <div class="clearfix">
-    <div class="clearfix">
+  <div class="row-fluid">
+    {# START TRANSLATIONS #}
+
+    <div class="row-fluid">
       {% if translation_part.dependants_exist() %}
-        <div class="span-18">
-          <h2 class="no-margin">{{ translation_part.label }}</h2>
-        </div>
+          <h4 class="no-margin">{{ translation_part.label }}</h4>
       {% endif %}
     </div>
     
-    <div class="clearfix">
+    <div class="row-fluid">
       {% for translation in translation_part.translation_languages(word.id) %}
         {% if not translation_part.dependants_exist() %}{% continue %}{% endif %}
-        <h3>{{ translation.language.label }}</h3>
+        <h5>{{ translation.language.label }}</h5>
         
-        <div class="clearfix">
+        <div class="row-fluid">
           {% for definition in word.definitions(translation_part.id, translation_id=translation.id) %}
-            <div class="span-20">
-              <ul>
-                {% if not request.view_args.definition_data == definition.id %}
-	          <li>
-                    {{ definition.definition }}
-                    </li>
-                  {% endif %}
-                  <ol style="padding-left: 0px;">
-                    <div class="clearfix">
-                      {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
-                        <div class="span-2">
-                          {% if not word_relation.word_id_1 == word.id %}
-                            {{ word_relation.word_1.word }}
-                          {% else %}
-                          {{ word_relation.word_2.word }}
-                        {% endif %}
-                        </div>
-                      {% endfor %}
-                    </div>
-                  </ol>
-              </ul>
-            </div>
+            <ul>
+              {% if not request.view_args.definition_data == definition.id %}
+	        <li>
+                  {{ definition.definition }}
+                </li>
+              {% endif %}
+              <div class="row-fluid">
+                {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
+                  <div class="span2">
+                    {% if not word_relation.word_id_1 == word.id %}
+                      {{ word_relation.word_1.word }}
+                    {% else %}
+                      {{ word_relation.word_2.word }}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </ul>
           {% endfor %}
         </div>
-        <div class="clearfix">
+        <div class="row-fluid">
           {# global (not belonging to a definition) part words #}
           {% for word_relation in word.relations(translation_part.id, translation_id=translation.id) %}
-            <div class="span-2">
+            <div class="span2">
               {% if not word_relation.word_id_1 == word.id %}
                 {{ word_relation.word_1.word }}
               {% else %}
@@ -194,31 +152,8 @@
       {% endfor %}
     </div>
     
+    {# END TRANSLATIONS #}
   </div>
-  
-  {#
-  <div class="prepend-14">
-    <form action="{{ url_for("view_word", word_data=word.word) }}" method="POST">
-      {{ speech_part_form.csrf }}
-      <div class="clearfix">
-	<div class="right">
-	  <div class="span-3 inline-label"><label>Add part of speech</label></div>
-	  {{ speech_part_form.part(class="span-4") }}
-	  <div class="span-1">{{ speech_part_form.submit }}</div>
-	</div>
-      </div>
-      <div  class="clearfix">
-	{% if speech_part_form.errors %}
-	  <div class="notice">
-	    {% for field_errors in speech_part_form.errors if field_errors %}
-	      {{ speech_part_form.errors[field_errors][0] }}<br />
-	    {% endfor %}
-	  </div>
-	{% endif %}
-      </div>
-    </form>
-  </div>
-  #}
   
   <hr />
       

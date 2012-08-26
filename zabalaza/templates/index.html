@@ -1,6 +1,81 @@
+
 {% extends "layout.html" %}
 {% block title %}Index{% endblock %}
 {% block content %}
+
+  <strong>Welcome!</strong> Use the search function below or read the help manual to get started<br />
+  <br />
+  <div class="row-fluid">
+    {# START SEARCH FORM #}
+
+    <form action="{{ url_for("words.search") }}" class="form-search" method="POST">
+      {{ search_form.csrf_token }}
+      {{ form.word(class="offset2 input-medium search-query input-xxlarge", placeholder="Search") }}
+      {{ form.submit(class="btn") }}
+      <br />
+      <span class="offset3">
+        (search, view, make corrections, expand and add new words)
+      </span>
+    </form>
+
+    {# END SEARCH FORM #}
+  </div>
+  
+  <div class="row-fluid">
+    {# START BROWSE #}
+    
+    <div class="span1">
+      <strong>{{ gettext("Browse") }}:</strong>
+    </div>
+    
+    <div class="span8">
+        {% for ascii_letter in ascii_letters %}
+          <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
+          <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
+        {% endfor %}
+    </div>
+
+    {# END BROWSE #}
+  </div>
+  
+  <div class="row-fluid" id="home-featured">
+    {# START LANGUAGE FEATURED #}
+    
+    <div class="span9">
+
+      <div id="home-featured-data" class="carousel slide"
+        style="position: !important relative;">
+        {% include "_featured.html" %}
+
+        <!-- <a class="carousel-control left" href="#home-featured-data" data-slide="prev">&lsaquo;</a> -->
+        <!-- <a class="carousel-control right" href="#home-featured-data" data-slide="next">&rsaquo;</a> -->
+
+      </div>
+      
+    </div>
+
+    <div class="span3">
+      <ul>
+        {% for language in languages %}
+          <div>
+            <li>
+              <a class="" style="line-height:1.8em !important;" href="{{ url_for("words.index", language_code=language.code) }}">{{ language.label }}</a>
+              &nbsp;&nbsp;&nbsp;
+            </li>
+          </div>
+          {% endfor %}
+      </ul>
+    </div>
+    
+    
+    {# END LANGUAGE FEATURED #}
+  </div>
+  
+
+
+
+
+  {#
   <h1>Zabalaza Afrika</h1>
   <hr />
   <div class="container">
@@ -14,7 +89,7 @@
     </div>
     <div class="container">
       <form action="{{ url_for("words.search") }}" method="POST">
-        {{ search_form.csrf_token }}{# {{ form.csrf }} #}
+        {{ search_form.csrf_token }}
         <div class="prepend-5 span-12 last">
           {{ form.word(class='span-12', placeholder="Search or add new words") }}
         </div>
@@ -26,7 +101,7 @@
   </div>
 
   <div class="container">
-    <h3>{{ gettext("Browse") }}</h3>
+      <h3>{{ gettext("Browse") }}</h3>
 
       <div class="container">
         <div class="large center">
@@ -55,7 +130,7 @@
     </ul>
     
   </div>
-    
+    #}
   
 {% endblock %}
 

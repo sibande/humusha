@@ -7,41 +7,41 @@
   {{ word_heading_render(view_mode="edit") }}
 
 
+  <hr />
+
   {% for word_part in speech_parts %}
-    <div class="clearfix">
-      <div class="span-4">
-	<h2 class="no-margin">{{ word_part.part.label }}</h2>
+    <div class="row-fluid">
+      {# START MAIN PART #}
+
+      <div class="column">
+	<h4 class="no-margin">{{ word_part.part.label }}</h4>
       </div>
-      <div class="span-6" style="padding: 0px 0;">
-        <div  class="clearfix">
+      <div class="span9">
+        <div class="row-fluid">
           {#
           <a href="">+ Add to {{ word_part.part.label|lower }} types</a>
           <br />
           #}
-          <form action="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}" method="POST">
+          <form class="form-inline" action="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}" method="POST">
             {{ speech_part_form.csrf_token }}
-            {{ speech_part_form.part(parent_id=word_part.part.id, class="span-4") }}
+            <div class="control-group">
+            {{ speech_part_form.part(parent_id=word_part.part.id, class="input-medium") }}
             {{ speech_part_form.parent_id(value=word_part.part.id) }}
             {{ speech_part_form.language_id(value=word.language_id) }}
-            <div class="span-1">
-              {{ speech_part_form.submit }}
+            {{ speech_part_form.submit(class="btn") }}
+            {% if speech_part_form.errors and speech_part_form.parent_id.data|int == word_part.part.id %}
+              <div class="control-group error">
+                {% for field_errors in speech_part_form.errors if field_errors %}
+	          <span class="help-inline">{{ speech_part_form.errors[field_errors][0] }}</span><br />
+	        {% endfor %}
+              </div>
+            {% endif %}
             </div>
           </form>
         </div>
-        <div  class="clearfix">
-          {% if speech_part_form.errors and
-          speech_part_form.parent_id.data|int == word_part.part.id %}
-
-	    <div class="notice">
-              {% for field_errors in speech_part_form.errors if field_errors %}
-	        {{ speech_part_form.errors[field_errors][0] }}<br />
-	      {% endfor %}
-            </div>
-	  {% endif %}
-        </div>
-
 
       </div>
+
 {#
       <div class="span-4" style="padding: 9px 0;">
 	<a href="">+ Add to tag</a>
@@ -49,7 +49,7 @@
 	{{ speech_part_form.part(parent_id=word_part.part.id, class="span-4") }}
 	{{ speech_part_form.parent_id(value=word_part.part.id) }} 
       </div>
-#}
+
       <div class="span-6 last">
 	<div class="clearfix">
 	  
@@ -58,52 +58,54 @@
 
 	</div>
       </div>
+#}
+
+      {# END MAIN PART #}
     </div>
 
-    <div class="clearfix">
+    <div class="row-fluid">
+      {# START CHILDREN PARTS #}
+
       {% for part_type in word_part.part_types %}
-        <div class="clearfix">
-          <div class="column" style="padding-top:14px;"><h3>{{
-          part_type.part.label }}</h3></div>
+        <div class="row-fluid">
+          <div class="column">
+            <h5>{{ part_type.part.label }}</h5>
+          </div>
           {% if part_type.part.relation.part_id %}
-            <div class="prepend-1 span-2" style="padding-top:16px;">
+            <div class="span2">
               <em>{{ ngettext("of word", "of words", part_type.part.relation.limit) }}</em>
             </div>
-            <div class="{% if part_type.part.relation.limit_reached(word.id) and not request.view_args.part_data == part_type.part.id %}hide{% endif %}">
-              <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+            <div class="{% if part_type.part.relation.limit_reached(word.id) and not request.view_args.part_data == part_type.part.id %}hide{% else %}span7{% endif %}">
+              <form class="form-inline" action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
                 {{ word_relation_form.csrf_token }}
                 <div class="hide relation-limit">{{ part_type.part.relation.limit }}</div>
-                <div class="span-8 last">
-                  {% if request.view_args.part_data == part_type.part.id %}
-                    {# Edit type of speech related words #}
-                    
-                    {% for word_relation in word.relations(part_type.part.id) %}
-                      {{ word_relation_form.word_relation.append_entry(word_relation.id) }}
-                      {% if not word_relation.word_id_1 == word.id %}
-                        {{ word_relation_form.word.append_entry(word_relation.word_1.word) }}
-                      {% else %}
-                        {{ word_relation_form.word.append_entry(word_relation.word_2.word) }}
-                      {% endif %}
-                    {% endfor %}
-                    {# 0 for unrestricted word relations #}
-                    {% if not part_type.part.relation.limit or loop.index < part_type.part.relation.limit %}
-                      {{ word_relation_form.word.append_entry() }}
+                {% if request.view_args.part_data == part_type.part.id %}
+                  {# Edit type of speech related words #}
+                  
+                  {% for word_relation in word.relations(part_type.part.id) %}
+                    {{ word_relation_form.word_relation.append_entry(word_relation.id) }}
+                    {% if not word_relation.word_id_1 == word.id %}
+                      {{ word_relation_form.word.append_entry(word_relation.word_1.word) }}
+                    {% else %}
+                      {{ word_relation_form.word.append_entry(word_relation.word_2.word) }}
                     {% endif %}
-                  {% else %}
+                  {% endfor %}
+                  {# 0 for unrestricted word relations #}
+                  {% if not part_type.part.relation.limit or loop.index < part_type.part.relation.limit %}
                     {{ word_relation_form.word.append_entry() }}
                   {% endif %}
-                </div>
-                <div class="span-1" style="padding-top:3px;">
-                  {{ word_relation_form.submit }}
-                </div>
+                {% else %}
+                  {{ word_relation_form.word.append_entry() }}
+                {% endif %}
+                {{ word_relation_form.submit(class="btn") }}
                 {{ word_relation_form.part(value=part_type.part.id) }}
               </form>
             </div>
-            <div class="span-4" style="padding:16px 0 0 10px;">
+            <div class="span7">
               {% if not request.view_args.part_data == part_type.part.id %}
                 {# Type of speech related words #}
                 {% for word_relation in word.relations(part_type.part.id) %}
-                  <div class="span-2">                  
+                  <div class="span2">                  
                     {% if not word_relation.word_id_1 == word.id %}
                       {{ word_relation.word_1.word }}
                     {% else %}
@@ -113,146 +115,146 @@
                 {% endfor %}
               {% endif %}
             </div>
-            <div class="span-1 right" style="padding:16px 0 0 10px;">
+            <div class="offset12 right">
               <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, part_data=part_type.part.id) }}">edit</a>
             </div>
           {% endif %}
 
         </div>
       {% endfor %}
+    
+    {# END CHILDREN PARTS #}
     </div>
 
-    <div class="clearfix">
-
+    <div class="row-fluid">
+      {# START DEFINITIONS #}
+      
       {% for definition in word_part.word.definitions(word_part.part_id) %}
-        <div class="span-21">
-          <ul>
-            {% if not request.view_args.definition_data == definition.id %}
-	    <li>
-	      {{ definition.definition }}
-{#	      <div class="right">
-		<a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
-	      </div>
-#}
-	    </li>
-	    <ol>
-	      {% for usage_example in definition.usage_examples %}
-		<li>
-		  <em>{{ usage_example.sentence }}</em>
-		</li>
-	      {% endfor %}
-	    </ol>
-	  {% else %}
-	    <li>
-	    <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
-	      {{ definition_form.part(value=word_part.part_id) }}
-	      {{ definition_form.definition_id(value=definition.id) }}
-	      <div class="clearfix">
-		<div class="span-20">
-		  <div class="span-12">
-		    <label>{{ definition_form.definition.label }}</label>
-		    {{ definition_form.definition(class="span-12", value=definition.definition) }}
-		  </div>
-		  
-		  <div class="prepend-12">
-		    <label>{{ usage_form.sentence.label }}</label>
-		    <br />
-		    {% for usage_example in definition.usage_examples %}
-		      {{ usage_form.sentence.append_entry(usage_example.sentence) }}
-		      {{ usage_form.sentence_id.append_entry(usage_example.id) }}
-		    {% endfor %}
-		    {{ usage_form.sentence.append_entry() }}
-		  </div>
-		</div>
-	      </div>
-	      <div class="clearfix">
-		<div class="clearfix">
-		  <div class="span-2"> {{ definition_form.submit(value="Update") }}</div>
-		</div>
-                {#
-		<a href="">+ Add definition</a><br />
-                #}
-	      </div>
-	      </form>
-	      </li>
-	    {% endif %}
-          </ul>
+        <div class="row-fluid">
+          {# START SINGLE DEFINITION #}
+          <div class="span11">
+            <ul>
+              {% if not request.view_args.definition_data == definition.id %}
+	        {# START DISPLAY DEFINITION #}
+                <li>
+                  {{ definition.definition }}
+                  {#	      <div class="right">
+		    <a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
+	      </div>   
+                  #}
+                </li>
+                <ol>
+                  {% for usage_example in definition.usage_examples %}
+		    <li>
+                      <em>{{ usage_example.sentence }}</em>
+                    </li>
+	          {% endfor %}
+                </ol>
+                {# END DISPLAY DEFINITION #}
+	      {% else %}
+                {# START EDIT DEFINITION #}
+                <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+                    {{ definition_form.part(value=word_part.part_id) }}
+
+                    <div class="row-fluid">
+                      <div class="span7">
+                        <label>{{ definition_form.definition.label }}</label>
+                        {{ definition_form.definition_id(value=definition.id) }}
+                        {{ definition_form.definition(value=definition.definition, class="span11") }}
+                      </div>
+                      <div class="span5">
+                        {# START EDIT USAGE EXAMPLE/SENTENCE #}
+                        
+                        <label>{{ usage_form.sentence.label }}</label>
+
+                        {% for usage_example in definition.usage_examples %}
+		          {{ usage_form.sentence.append_entry(usage_example.sentence) }}
+                          {{ usage_form.sentence_id.append_entry(usage_example.id) }}
+		        {% endfor %}
+                        {{ usage_form.sentence.append_entry() }}
+                        <br />
+                        {{ definition_form.submit(value="Update", class="btn") }}
+
+                        {# END EDIT USAGE EXAMPLE/SENTENCE #}
+                      </div>
+                    </div>
+                    
+                  </form>
+                  {# END EDIT DEFINITION #}
+              {% endif %}
+            </ul>
           </div>
-          <div class="span-1 right">
+          <div class="offset12 right">
             <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, definition_data=definition.id) }}">edit</a>
           </div>
-	  
-	{% endfor %}
+          {# END SINGLE DEFINITION #}
+        </div>
+      {% endfor %}
 
+      {# END DEFINITIONS #}
     </div>
-    <div {% if request.view_args.definition_data %}style="display:none;"{% endif %}>
+
+    <div class="{% if request.view_args.definition_data %}hide{% else %}row-fluid{% endif %}">
+      {# START ADD DEFINITION #}
+          
       <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
-	{{ definition_form.part(value=word_part.part_id) }}
-	<div class="clearfix">
-	  <div class="span-15">
-	    <div class="span-12">
-	      <label>{{ definition_form.definition.label }}</label>
-	      {{ definition_form.definition(class="span-12") }}
-	    </div>
-	    
-	    <div class="prepend-12">
-	      <label>{{ usage_form.sentence.label }}</label>
-	      <br />
-	      {{ usage_form.sentence.append_entry() }}
-	      {{ usage_form.sentence.append_entry() }}
-	    </div>
-	  </div>
-	</div>
-	<div class="clearfix">
-	  <div class="clearfix">
-	    <div class="span-2"> {{ definition_form.submit }}</div>
-	  </div>
-          {#
-	  <a href="">+ Add definition</a><br />
-          #}
+        {{ definition_form.part(value=word_part.part_id) }}
+        
+        <div class="row-fluid">
+          <div class="span6">
+            <label>{{ definition_form.definition.label }}</label>
+            {{ definition_form.definition(class="span-10") }}
+          </div>
+          
+          <div class="span5">
+            <label>{{ usage_form.sentence.label }}</label>
+            {{ usage_form.sentence.append_entry() }}
+            <br />
+            {{ usage_form.sentence.append_entry() }}
+            <br />
+            {{ definition_form.submit(class="btn") }}
+          </div>
+	
 	</div>
       </form>
+
+      {# END ADD DEFINITION #}
     </div>
 
   {% endfor %}
   
-  <div class="clearfix">
-    {% for thesaurus_part in thesaurus_parts %}
-      <div class="clearfix">
-        <div class="clearfix">
-          <div class="span-18">
-            <h2 class="no-margin">{{ thesaurus_part.label }}</h2>
-          </div>
-        </div>
-        <div class="clearfix">
+  {% for thesaurus_part in thesaurus_parts %}
+    <div class="row-fluid">
+      {# START THESAURUS #}
+      
+      <div class="row-fluid">
+        <h4 class="no-margin">{{ thesaurus_part.label }}</h4>
+      </div>
+
+        <div class="row-fluid">
+          {# START THESAURUS CONTEXT #}
           {% for definition in word.definitions(thesaurus_part.id) %}
-            <div class="span-20">
+            <div class="span11">
               <ul>
                 {% if not request.view_args.definition_data == definition.id %}
 	          <li>
 	            {{ definition.definition }}
                   </li>
                 {% else %}
-	          <li>
-                    <div class="clearfix">
-                      <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
-                        {{ definition_form.definition_id(value=definition.id) }}
-                        <div class="span-16">
-                          {{ definition_form.part(value=thesaurus_part.id) }}
-                          {{ definition_form.definition(class="span-16", value=definition.definition) }}
-                        </div>
-
-                        <div class="span-2">
-                          {{ definition_form.submit(value="Update") }}
-                        </div>
-                      </div>
+	          <div class="row-fluid">
+                    <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+                      {{ definition_form.definition_id(value=definition.id) }}
+                      {{ definition_form.part(value=thesaurus_part.id) }}
+                      {{ definition_form.definition(class="span7", value=definition.definition) }}
+                      {{ definition_form.submit(value="Update", class="btn") }}
                     </form>
-                  </li>
+                  </div>
                 {% endif %}
-                <ol style="padding-left: 0px;">
-                  <div class="clearfix">
+
+                <div class="row-fluid">
+                  {# START DISPLAY CONTEXT WORDS #}
                   {% for word_relation in word.relations(thesaurus_part.id, definition.id) %}
-                    <div class="span-2">
+                    <div class="span1">
                       {% if not word_relation.word_id_1 == word.id %}
                         {{ word_relation.word_1.word }}
                       {% else %}
@@ -260,36 +262,34 @@
                       {% endif %}
                     </div>
                   {% endfor %}
-                  </div>
-                  <div class="clearfix">
-                    <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
-                      {{ word_relation_form.csrf_token }}
-                      {{ word_relation_form.part(value=thesaurus_part.id) }}
-                      {{ definition_form.definition_id(value=definition.id) }}
-                    <div class="span-7">
-                      {{ word_relation_form.word.append_entry() }}<br />
-                    </div>
-                    <div class="span-2">
-                      {{ word_relation_form.submit }}
-                    </div>
+                  {# END DISPLAY CONTEXT WORDS #}
+                </div>
+                <div class="row-fluid">
+                  {# START EDIT CONTEXT WORDS #}
+                  <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+                    {{ word_relation_form.csrf_token }}
+                    {{ word_relation_form.part(value=thesaurus_part.id) }}
+                    {{ definition_form.definition_id(value=definition.id) }}
+                    {{ word_relation_form.word.append_entry() }}
+                    {{ word_relation_form.submit(class="btn") }}
                     </form>
-                  </div>
-
-
-                </ol>
+                    {# END EDIT CONTEXT WORDS #}
+                </div>
               </ul>
             </div>
-            <div class="span-1 right">
+            <div class="span1 right">
               <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, definition_data=definition.id) }}">edit</a>
             </div>
-
-
+            {# END THESAURUS CONTEXT #}
           {% endfor %}
 
+          {# END THESAURUS CONTEXT #}
         </div>
-        <div class="clearfix">
+
+        <div class="row-fluid">
+          {# START THESAURUS WORDS #}
           {% for word_relation in word.relations(thesaurus_part.id) %}
-            <div class="span-2">
+            <div class="span-1">
               {% if not word_relation.word_id_1 == word.id %}
                 {{ word_relation.word_1.word }}
               {% else %}
@@ -297,34 +297,27 @@
                 {% endif %}
             </div>
           {% endfor %}
+          {# START THESAURUS WORDS #}
         </div>
-              
-               
 
-
-        <div class="clearfix">
-          <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+        {# START ADD THESAURUS CONTEXT #}
+        <div class="row-fluid">
+          <form class="form-inline" action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
             {{ word_relation_form.csrf_token }}
             {{ word_relation_form.part(value=thesaurus_part.id) }}
-            <div class="span-7">
-              {{ word_relation_form.word.append_entry() }}<br />
-            </div>
-            <div class="span-2">
-              {{ word_relation_form.submit }}
-            </div>
+            {{ word_relation_form.word.append_entry() }}
+            {{ word_relation_form.submit(class="btn") }}
           </form>
         </div>
-        <div class="clearfix">
-          <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
-            <div class="span-18">
-              {{ definition_form.part(value=thesaurus_part.id) }}
-              {{ definition_form.definition(class="span-18") }}
-            </div>
-            <div class="span-2">
-              {{ definition_form.submit }}
-            </div>
+        <div class="row-fluid">
+          <form class="form-inline" action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+            {{ definition_form.part(value=thesaurus_part.id) }}
+            {{ definition_form.definition() }}
+            {{ definition_form.submit(class="btn") }}
           </form>
         </div>
+        {# END ADD THESAURUS CONTEXT #}
+
         <!-- <div class="span-18"> -->
           <!-- <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST"> -->
           <!--   {{ word_relation_form.csrf_token }} -->
@@ -339,102 +332,94 @@
             <!-- </div> -->
         <!--   </div> -->
         <!-- </form> -->
-      <!-- </div> -->
+
+        {# END THESAURUS #}
+      </div>
     {% endfor %}
 
 
 
-    {# word translation block #}
-    <div class="clearfix">
-      <div class="clearfix">
-        <div class="span-4">
-          <h2 class="no-margin">{{ translation_part.label }}</h2>
-        </div>
-        <div class="span-6" style="padding: 0px 0;">
-          <div class="clearfix">
-            <form action="{{ url_for("words.translation_language", language_code=word.language.code, word_data=word.word) }}" method="POST">
-              <div class="column">
-                {{ translation_form.word_id(value=word.id) }}
-                {{ translation_form.part_id(value=translation_part.id) }}
-                {{ translation_form.language_id }}
-              </div>
-              <div class="span-1">
-                {{ translation_form.submit }}
-              </div>
-            </form>
-          </div>
-        </div>
+    {# START TRANSLATIONS #}
+    <div class="row-fluid">
+      <div class="span4">
+        <h4 class="no-margin">{{ translation_part.label }}</h4>
       </div>
-      <div class="clearfix">
-        {% for translation in translation_part.translation_languages(word.id) %}
-          <h3>{{ translation.language.label }}</h3>
-          {# ----------- #}
-          <div class="clearfix">
-            {% for definition in word.definitions(translation_part.id, translation_id=translation.id) %}
-              <div class="span-20">
+      <div class="column">
+        <form class="form-inline" action="{{ url_for("words.translation_language", language_code=word.language.code, word_data=word.word) }}" method="POST">
+          {{ translation_form.word_id(value=word.id) }}
+          {{ translation_form.part_id(value=translation_part.id) }}
+          {{ translation_form.language_id }}
+          {{ translation_form.submit(class="btn") }}
+        </form>
+      </div>
+    </div>
+
+    <div class="row-fluid">
+      {# START TRANSLATION LANGUAGES #}
+      {% for translation in translation_part.translation_languages(word.id) %}
+        <div class="row-fluid">
+          <h5>{{ translation.language.label }}</h5>
+        </div>
+
+        <div class="row-fluid">
+          {# START TRANSLATION CONTEXT #}
+          {% for definition in word.definitions(translation_part.id, translation_id=translation.id) %}
+            <div class="span11">
               <ul>
                 {% if not request.view_args.definition_data == definition.id %}
 	          <li>
 	            {{ definition.definition }}
                   </li>
                 {% else %}
-	          <li>
-                    <div class="clearfix">
-                      <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
-                        {{ definition_form.definition_id(value=definition.id) }}
-                        <div class="span-16">
-                          {{ definition_form.part(value=translation_part.id) }}
-                          {{ definition_form.translation_id(value=translation.id) }}
-                          {{ definition_form.definition(class="span-16", value=definition.definition) }}
-                        </div>
-                        
-                        <div class="span-2">
-                          {{ definition_form.submit(value="Update") }}
-                        </div>
-                      </div>
-                    </form>
-                  </li>
-                {% endif %}
-                <ol style="padding-left: 0px;">
-                  <div class="clearfix">
-                    {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
-                      <div class="span-2">
-                        {% if not word_relation.word_id_1 == word.id %}
-                          {{ word_relation.word_1.word }}
-                        {% else %}
-                          {{ word_relation.word_2.word }}
-                        {% endif %}
-                      </div>
-                    {% endfor %}
-                  </div>
-                  <div class="clearfix">
-                    <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
-                      {{ word_relation_form.csrf_token }}
-                      {{ word_relation_form.part(value=translation_part.id) }}
-                      {{ word_relation_form.translation_id(value=translation.id) }}
+                  {# START EDIT TRANSLATION CONTEXT #}
+                  <div class="row-fluid">
+                    <form class="form-inline" action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
                       {{ definition_form.definition_id(value=definition.id) }}
-                      <div class="span-7">
-                        {{ word_relation_form.word.append_entry() }}<br />
-                      </div>
-                      <div class="span-2">
-                        {{ word_relation_form.submit }}
-                      </div>
+                      {{ definition_form.part(value=translation_part.id) }}
+                      {{ definition_form.translation_id(value=translation.id) }}
+                      {{ definition_form.definition(value=definition.definition) }}
+                      {{ definition_form.submit(value="Update", class="btn") }}
                     </form>
                   </div>
-                </ol>
+                  {# END EDIT TRANSLATION CONTEXT #}
+                {% endif %}
+                <div class="row-fluid">
+                  {# START CONTEXT WORDS DISPLAY #}
+                  {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
+                    <div class="span1">
+                      {% if not word_relation.word_id_1 == word.id %}
+                        {{ word_relation.word_1.word }}
+                      {% else %}
+                        {{ word_relation.word_2.word }}
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                  {# END CONTEXT WORDS DISPLAY #}
+                </div>
+                <div class="row-fluid">
+                  <form class="form-inline" action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+                    {{ word_relation_form.csrf_token }}
+                    {{ word_relation_form.part(value=translation_part.id) }}
+                    {{ word_relation_form.translation_id(value=translation.id) }}
+                    {{ definition_form.definition_id(value=definition.id) }}
+                    {{ word_relation_form.word.append_entry() }}<br />
+                    {{ word_relation_form.submit(class="btn") }}
+                  </form>
+                </div>
               </ul>
             </div>
-            <div class="span-1 right">
+            <div class="span1 right">
               <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, definition_data=definition.id) }}">edit</a>
             </div>
           {% endfor %}
           
-  
+          {# END TRANSLATION CONTEXT #}
         </div>
 
-        <div class="clearfix">
+        <div class="row-fluid">
+          {# START DISPLAY WORDS WITHOUT CONTEXT #}
           {% for word_relation in word.relations(translation_part.id, translation_id=translation.id) %}
-            <div class="span-2">
+            <div class="span1">
               {% if not word_relation.word_id_1 == word.id %}
                 {{ word_relation.word_1.word }}
               {% else %}
@@ -442,68 +427,62 @@
               {% endif %}
             </div>
           {% endfor %}
+          {# END DISPLAY WORDS WITHOUT CONTEXT #}
         </div>
         
-        <div class="clearfix">
-          <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+        <div class="row-fluid">
+          {# START ADD WORDS WITHOUT CONTEXT #}
+          <form class="form-inline" action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
             {{ word_relation_form.csrf_token }}
             {{ word_relation_form.part(value=translation_part.id) }}
             {{ word_relation_form.translation_id(value=translation.id) }}
-            <div class="span-7">
-              {{ word_relation_form.word.append_entry() }}<br />
-            </div>
-            <div class="span-2">
-              {{ word_relation_form.submit }}
-            </div>
+            {{ word_relation_form.word.append_entry() }}
+            {{ word_relation_form.submit(class="btn") }}
           </form>
+          {# END ADD WORDS WITHOUT CONTEXT #}
         </div>
-        <div class="clearfix">
-          <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
-            <div class="span-18">
-              {{ definition_form.part(value=translation_part.id) }}
-              {{ definition_form.translation_id(value=translation.id) }}
-              {{ definition_form.definition(class="span-18") }}
-            </div>
-            <div class="span-2">
-              {{ definition_form.submit }}
-            </div>
+        
+        <div class="row-fluid">
+          {# START ADD WORDS CONTEXT #}
+          <form class="form-inline" action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+            {{ definition_form.part(value=translation_part.id) }}
+            {{ definition_form.translation_id(value=translation.id) }}
+            {{ definition_form.definition }}
+            {{ definition_form.submit(class="btn") }}
           </form>
+          {# END ADD WORDS CONTEXT #}
         </div>
+
+        
         {# ----------- #}
-        {% endfor %}
-      </div>
+      {% endfor %}
+      {# END TRANSLATION LANGUAGES #}
     </div>
-    {# end word translation block #}
 
-  </div>
-
-
-  <div class="prepend-14">
-    <form action="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}" method="POST">
-      {{ speech_part_form.csrf_token }}
-      <div class="clearfix">
-	<div class="right">
-	  <div class="span-3 inline-label"><label>Add part of speech</label></div>
-	  {{ speech_part_form.part(class="span-4", language_id=word.language_id) }}
+    <div class="row-fluid">
+      {# START ADD MASTER PART OF SPEECH #}
+      <div class="offset7">
+        <form class="form-inline" action="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}" method="POST">
+          {{ speech_part_form.csrf_token }}
+          <label>Add part of speech</label>
+          {{ speech_part_form.part(language_id=word.language_id) }}
 	  {{ speech_part_form.parent_id(value=0) }}
           {{ speech_part_form.language_id(value=word.language_id) }}
-	  <div class="span-1">{{ speech_part_form.submit }}</div>
-	</div>
+	  {{ speech_part_form.submit(class="btn") }}
+          
+          {% if speech_part_form.errors and speech_part_form.parent_id.data|int == 0 %}
+            <div class="control-group error">
+              {% for field_errors in speech_part_form.errors if field_errors %}
+	        <span class="help-inline">{{ speech_part_form.errors[field_errors][0] }}</span><br />
+	      {% endfor %}
+            </div>
+	  {% endif %}
+        </form>
       </div>
-      <div  class="clearfix">
-	{% if speech_part_form.errors and speech_part_form.parent_id.data|int == 0 %}
-	  <div class="notice">
-	    {% for field_errors in speech_part_form.errors if field_errors %}
-	      {{ speech_part_form.errors[field_errors][0] }}<br />
-	    {% endfor %}
-	  </div>
-	{% endif %}
-      </div>
-    </form>
-  </div>
-</div>
+      {# END ADD MASTER PART OF SPEECH #}
+    </div>
       
-  {% include "words/_words_display.html" %}
+    {% include "words/_words_display.html" %}
       
 {% endblock %}
 
