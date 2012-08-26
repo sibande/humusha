@@ -1,4 +1,7 @@
 {% for language_featured in featured_words %}
+  {% if not featured_words[language_featured]|count %}
+    {% continue %}
+  {% endif %}
   <div class="item{% if loop.first %} active{% endif %}">
 
     {% for word in featured_words[language_featured] %}
