@@ -1,3 +1,4 @@
+
 import string
 
 from flask import Flask, session, request_started
@@ -21,7 +22,7 @@ app.secret_key = '\xbb#\xbb\x1b\x91\x15\xd6\xf7\xc7~\xa18\x08D\xed\xc37$,\x10\xc
 
 # SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://root:' + \
-    open('db.passwd', 'r').read()+'@localhost/zabalaza_test'
+    open('db.passwd', 'r').read().strip()+'@localhost/zabalaza'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 # Model versioning
@@ -35,6 +36,7 @@ app.jinja_env.install_gettext_callables(gettext, ngettext, newstyle=True)
 def datetimeformat(value, format='%Y-%m-%d at %H:%M'):
     from babel.dates import format_date, format_datetime, format_time
     return format_datetime(value, locale='en_US')
+
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
 # Views
@@ -58,6 +60,7 @@ def _set_default_language(app):
             session['app_language'] = language.id
             session['language'] = language.id
         session['languages'] = dict((l.id, l.code) for l in Language.query.all())
+
 request_started.connect(_set_default_language, app)
 
 
