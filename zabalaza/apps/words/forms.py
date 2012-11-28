@@ -2,7 +2,7 @@ from sqlalchemy import or_
 
 from flaskext.babel import gettext, ngettext, lazy_gettext as _
 from flask import session
-from flaskext.wtf import Form, TextField, Required as BaseRequired, SubmitField, \
+from flask_wtf import Form, TextField, Required as BaseRequired, SubmitField, \
     ValidationError, SelectField, HiddenField, FieldList, IntegerField
 
 from .models import Word, Part, WordPart, Relation, WordRelation, Language,\

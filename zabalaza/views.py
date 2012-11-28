@@ -18,17 +18,16 @@ def home():
 
 
 
-@app.route('/switch/language', methods=['POST'])
-def switch_language():
-    def _switch_langauge(langauge_type, message = None):
-        language_data = request.form.get(langauge_type, None)
-        language = Language.query.filter(Language.code==language_data).first()
+@app.route('/switch/<language_type>/<language_code>', methods=['GET'])
+def switch_language(language_type, language_code):
+    def _switch_langauge(message = None):
+        language = Language.query.filter(Language.code==language_code).first()
         if language is not None:
-            session[langauge_type] = language.id
+            session[language_type] = language.id
             flash(gettext(u'Language changed to {0}')\
                       .format(language.label), 'success')
 
-    for language_type in ['app_language', 'language']:
-        _switch_langauge(language_type)
+    if language_type in ['app_language', 'language']:
+        _switch_langauge()
 
     return redirect(request.args.get('next', '/'))

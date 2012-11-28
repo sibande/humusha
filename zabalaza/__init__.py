@@ -64,12 +64,15 @@ def _set_default_language(app):
 request_started.connect(_set_default_language, app)
 
 
+def language_data(language_id):
+    return Language.query.filter(Language.id==language_id).first()
+
 def latest_words(value, count=4):
-    print dir(Word)
     words = Word.query.filter(Word.language_id==int(value))\
         .order_by('word.id DESC').limit(count)
     return words
 app.jinja_env.filters['latest_words'] = latest_words
+app.jinja_env.filters['language_data'] = language_data
 
 @app.context_processor
 def _template_ctx_languages():

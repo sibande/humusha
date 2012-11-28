@@ -5,9 +5,9 @@
     $("div#flashes div").fadeOut(7000, "easeOutBack");
     
     // switch language
-    $("#switch-language-form select").on("change", function() {
-      $(this).parent().submit();
-    });
+    // $("#switch-language-form select").on("change", function() {
+    //   $(this).parent().submit();
+    // });
     $('.carousel').carousel()
   });
 })(jQuery);
