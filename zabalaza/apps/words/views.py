@@ -17,7 +17,7 @@ words = Blueprint('words', __name__)
 @words.route('/')
 @words.route('/<language_code>/', methods=['GET', 'POST'])
 def index(language_code=None):
-    words = Word.query.order_by('word.id DESC').limit(600).all()
+    words = Word.query.order_by('word.id DESC').limit(4800).all()
     
     ctx = {
         'words': words,
@@ -28,7 +28,7 @@ def index(language_code=None):
 @words.route('/browse/<starts_with>/<language_code>/', methods=['GET', 'POST'])
 def browse(starts_with, language_code=None):
     words = Word.query.filter(Word.word.startswith(starts_with))\
-        .order_by('word.id DESC').limit(600).all()
+        .order_by('word.id DESC').limit(4800).all()
     
     ctx = {
         'words': words,
@@ -310,7 +310,7 @@ def add(form_class=WordForm):
         if request.method == 'POST':
             flash(gettext(u'Error while trying to save the word.'), 'error')
 
-    words = Word.query.order_by('word.id DESC').limit(600).all()
+    words = Word.query.order_by('word.id DESC').limit(4800).all()
 
     ctx = {
         'form': form,
@@ -340,7 +340,7 @@ def history(word_data, language_code=None):
 def search(form_class=SearchForm):
     form = form_class()
 
-    words = Word.query.order_by('word.id DESC').limit(600).all()
+    words = Word.query.order_by('word.id DESC').limit(4800).all()
 
     if form.validate_on_submit() or request.args.get('q'):
         if request.args.get('q') and not form.word.data:
