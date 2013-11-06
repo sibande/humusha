@@ -5,9 +5,9 @@ from sqlalchemy.sql import func
 from flask import session, url_for
 from jinja2 import Markup
 
-from zabalaza import db
+from humusha import db
 
-from zabalaza.utils.history_meta import Versioned, versioned_session
+from humusha.utils.history_meta import Versioned, versioned_session
 
 
 class Language(Versioned, db.Model):
@@ -493,7 +493,7 @@ class WordRelation(Versioned, db.Model):
             self.word_id_1, self.word_id_2
 
 
-def zabalaza_pre_populate():
+def humusha_pre_populate():
     """Insert fixtures to database"""
     from .fixtures.languages import data
 
@@ -561,5 +561,5 @@ def zabalaza_pre_populate():
             add_part_row(row, language_id=language_id)
             
             
-db.zabalaza_pre_populate = zabalaza_pre_populate
+db.humusha_pre_populate = humusha_pre_populate
 

@@ -1,7 +1,7 @@
 from flask import render_template, session, request, redirect, flash
 
-from flaskext.babel import gettext, ngettext, lazy_gettext as _
-from zabalaza import app
+from flask_babel import gettext, ngettext, lazy_gettext as _
+from humusha import app
 from apps.words.forms import WordForm, SearchForm
 from apps.words.models import Language, Word
 

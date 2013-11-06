@@ -5,9 +5,9 @@
 #include <ctime>
 #include <cstdlib>
 
-const std::string BOOTSTRAP_DIRECTORY = "zabalaza/static/less/",
-	BOOTSTRAP_MAIN = "zabalaza/static/less/bootstrap.less",
-	BOOTSTRAP_CSS = "zabalaza/static/css/bootstrap.css";
+const std::string BOOTSTRAP_DIRECTORY = "humusha/static/less/",
+	BOOTSTRAP_MAIN = "humusha/static/less/bootstrap.less",
+	BOOTSTRAP_CSS = "humusha/static/css/bootstrap.css";
 	
 int main()
 {

@@ -1,15 +1,15 @@
-
 <!DOCTYPE html>
 <html>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}" type="text/css" />
   <head>
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %} - Humusha</title>
   </head>
   <body>
     {% from "_common.html" import render_language_form with context %}
+    {% from "_pagination.html" import render_pagination with context %}
 
-
+    
     {% macro with_errors(field) %}
       <div class="field">
         <label>{{ field.label }}</label>
@@ -33,7 +33,7 @@
       </div>
     {% endmacro %}
 
-      
+    
     <div class="container-fluid">
       {# START HEADER #}
       <div class="row-fluid">
@@ -43,7 +43,7 @@
             <div class="row-fluid">
               <div class="span9">
                 {% include "_global_search.html" %}
-      
+                
                 <div class="row-fluid">
                   <div class="span2">
                     <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
@@ -53,6 +53,9 @@
                   </div>
                   <div class="span2">
                     <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a>
+                  </div>
+                  <div class="span2">
+                    <a href="{{ url_for("words.statistics") }}">{{ gettext('Statistics') }}</a>
                   </div>
                   <div class="span2">
                     {{ gettext('Activity') }}
@@ -75,7 +78,7 @@
             </div>
           </div>
           <div class="span4">
-            <div id="home"><a href="{{ url_for("home") }}">Zabalaza</a></div>
+            <div id="home"><a href="{{ url_for("home") }}">Humusha</a></div>
             <br />
             <div>The free multi-language dictionary and thesaurus that anyone can edit</div>
           </div>
@@ -90,7 +93,7 @@
         {# START BODY #}
         
 	{% block content %}{% endblock %}
-              
+        
         {# END BODY #}
       </div>
     </div>
@@ -102,14 +105,14 @@
       <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
         <img alt="Creative Commons License" style="border-width:0"
              src="/static/img/cc-by-sa-88x31.png" /></a>
-        <br />
-        This <span xmlns:dct="http://purl.org/dc/terms/"
-        href="http://purl.org/dc/dcmitype/Text"
-        rel="dct:type">work</span> is licensed under a <a rel="license"
-        href="http://creativecommons.org/licenses/by-sa/3.0/">Creative
-        Commons Attribution-ShareAlike 3.0 Unported License</a>.
-  
-      {# END FOOTER #}
+             <br />
+             This <span xmlns:dct="http://purl.org/dc/terms/"
+             href="http://purl.org/dc/dcmitype/Text"
+             rel="dct:type">work</span> is licensed under a <a rel="license"
+             href="http://creativecommons.org/licenses/by-sa/3.0/">Creative
+             Commons Attribution-ShareAlike 3.0 Unported License</a>.
+             
+             {# END FOOTER #}
     </div>
 
 
@@ -117,73 +120,72 @@
     <br />
     <br />
     <br />
-{#
+    {# <div class="container clear"> 
     <div class="container clear">
-      <div class="container clear">
-	<div id="home" class="span-8"><a href="{{ url_for("home") }}">Zabalaza</a></div>
-	<div id="menu" class="span-11">
-	  <ul>
-	    <li>
-	      <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
-	    </li>
-	    <li>
-	      <a href="{{ url_for("words.add") }}">{{ gettext('Add') }}</a>
-	    </li>
-	    <li>
-	      <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a>
-	    </li>
-	  </ul>
-	</div>
-	<div id="search" class="span-5 last">
-	  <div class="right">
-	    {% include "_global_search.html" %}
-	  </div>
-	</div>
-
-        {% from "_common.html" import render_language_form with context %}
-
-	<div id="language" class="span-5 last">
-	  <div class="right">
-            {{ render_language_form("app_language") }}
-	  </div>
+      <div id="home" class="span-8"><a href="{{ url_for("home") }}">Humusha</a></div>
+      <div id="menu" class="span-11">
+	<ul>
+	  <li>
+	    <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
+	  </li>
+	  <li>
+	    <a href="{{ url_for("words.add") }}">{{ gettext('Add') }}</a>
+	  </li>
+	  <li>
+	    <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a>
+	  </li>
+	</ul>
+      </div>
+      <div id="search" class="span-5 last">
+	<div class="right">
+	  {% include "_global_search.html" %}
 	</div>
       </div>
+
+      {% from "_common.html" import render_language_form with context %}
+
+      <div id="language" class="span-5 last">
+	<div class="right">
+          {{ render_language_form("app_language") }}
+	</div>
+      </div>
+    </div>
+    
+    {% macro with_errors(field) %}
+      <div class="field">
+	<label>{{ field.label }}</label>
+	{% set css_class = kwargs.pop('class', '') %}
+	{% if not css_class %}
+	  {% set css_class = 'clearfix span-17 ' + css_class %}
+	{% else %}
+	  {% set css_class = 'clearfix ' + css_class %}
+	{% endif %}
+	{% if field.errors %}
+	  
+	  <div  class="clearfix">
+	    {{ field(class=css_class, **kwargs) }}
+	  </div>
+	  <div class="notice">{% for error in field.errors %}<div>{{ error|e }}</div>{% endfor %}</div>
+	{% else %}
+	  <div class="clearfix">
+	    {{ field(class=css_class, **kwargs) }}
+	  </div>
+        {% endif %}
+      </div>
+    {% endmacro %}
+
+    <div id="main" class="clearfix">      
+      {% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	  <div id="flashes">
+	    {% for category, message in messages %}
+	      <div class="{{ category }}">{{ message }}</div>
+	    {% endfor %}
+	  </div>
+	{% endif %}
+      {% endwith %}
       
-      {% macro with_errors(field) %}
-	<div class="field">
-	  <label>{{ field.label }}</label>
-	  {% set css_class = kwargs.pop('class', '') %}
-	  {% if not css_class %}
-	    {% set css_class = 'clearfix span-17 ' + css_class %}
-	  {% else %}
-	    {% set css_class = 'clearfix ' + css_class %}
-	  {% endif %}
-	  {% if field.errors %}
-	    
-	    <div  class="clearfix">
-	      {{ field(class=css_class, **kwargs) }}
-	    </div>
-	    <div class="notice">{% for error in field.errors %}<div>{{ error|e }}</div>{% endfor %}</div>
-	  {% else %}
-	    <div class="clearfix">
-	      {{ field(class=css_class, **kwargs) }}
-	    </div>
-          {% endif %}
-        </div>
-      {% endmacro %}
-
-      <div id="main" class="clearfix">      
-	{% with messages = get_flashed_messages(with_categories=true) %}
-	  {% if messages %}
-	    <div id="flashes">
-	      {% for category, message in messages %}
-		<div class="{{ category }}">{{ message }}</div>
-	      {% endfor %}
-	    </div>
-	    {% endif %}
-	  {% endwith %}
-
-      </div>
+    </div>
     </div>
     <br />
     <hr />
@@ -191,14 +193,15 @@
       <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
         <img alt="Creative Commons License" style="border-width:0"
              src="/static/img/cc-by-sa-88x31.png" /></a>
-        <br />
-        This <span xmlns:dct="http://purl.org/dc/terms/"
-        href="http://purl.org/dc/dcmitype/Text"
-        rel="dct:type">work</span> is licensed under a <a rel="license"
-        href="http://creativecommons.org/licenses/by-sa/3.0/">Creative
-        Commons Attribution-ShareAlike 3.0 Unported License</a>.
+             <br />
+             This <span xmlns:dct="http://purl.org/dc/terms/"
+             href="http://purl.org/dc/dcmitype/Text"
+             rel="dct:type">work</span> is licensed under a <a rel="license"
+             href="http://creativecommons.org/licenses/by-sa/3.0/">Creative
+             Commons Attribution-ShareAlike 3.0 Unported License</a>.
     </div>
-#}
+
+    #}
     <script src="{{ url_for('static', filename='js/jquery-1.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.easing.1.3.js') }}"></script>
     <script src="{{ url_for('static', filename='js/default.js') }}"></script>

@@ -1,9 +1,10 @@
 from flask import render_template, flash, request, redirect, url_for, abort,\
     session, Blueprint
 from werkzeug.datastructures import MultiDict
-from flaskext.babel import gettext, ngettext, lazy_gettext as _
+from flask_babel import gettext, ngettext, lazy_gettext as _
 
-from zabalaza import db
+from humusha.utils.pagination import Pagination
+from humusha import db
 
 from .forms import WordForm, SearchForm, SpeechPartForm, DefinitionForm, \
     UsageForm, WordRelationForm, TranslationForm
@@ -13,25 +14,50 @@ from .models import Word, WordPart, Definition, Usage, Part, Relation,\
 
 words = Blueprint('words', __name__)
 
+PER_PAGE = 80
 
 @words.route('/')
 @words.route('/<language_code>/', methods=['GET', 'POST'])
 def index(language_code=None):
-    words = Word.query.order_by('word.id DESC').limit(4800).all()
+    page = request.args.get('page', 1)
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
     
+    words = Word.query.order_by('word.id DESC')\
+        .slice((page - 1)*PER_PAGE, page*PER_PAGE).all()
+
+    words_count = Word.query.order_by('word.id DESC').count()
+    pagination = Pagination(page, PER_PAGE, words_count)
+
     ctx = {
         'words': words,
+        'pagination': pagination,
     }
     return render_template('words/words.html', **ctx)
 
 @words.route('/browse/<starts_with>/')
 @words.route('/browse/<starts_with>/<language_code>/', methods=['GET', 'POST'])
 def browse(starts_with, language_code=None):
+    page = request.args.get('page', 1)
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
     words = Word.query.filter(Word.word.startswith(starts_with))\
-        .order_by('word.id DESC').limit(4800).all()
-    
+        .order_by('word.id DESC').slice((page - 1)*PER_PAGE, page*PER_PAGE).all()
+    words_count = Word.query.filter(Word.word.startswith(starts_with)).count()
+    pagination = Pagination(page, PER_PAGE, words_count)
+        
     ctx = {
         'words': words,
+        'pagination': pagination,
     }
     return render_template('words/browse.html', **ctx)
 
@@ -297,6 +323,14 @@ def translation_language(word_data, language_code=None):
 
 @words.route('/add', methods=['GET', 'POST'])
 def add(form_class=WordForm):
+    page = request.args.get('page', 1)
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
     form = form_class()
 
     if form.validate_on_submit():
@@ -310,11 +344,15 @@ def add(form_class=WordForm):
         if request.method == 'POST':
             flash(gettext(u'Error while trying to save the word.'), 'error')
 
-    words = Word.query.order_by('word.id DESC').limit(4800).all()
+    words = Word.query.order_by('word.id DESC')\
+                      .slice((page - 1)*PER_PAGE, page*PER_PAGE).all()
+    words_count = Word.query.order_by('word.id DESC').count()
+    pagination = Pagination(page, PER_PAGE, words_count)
 
     ctx = {
         'form': form,
         'words': words,
+        'pagination': pagination,
     }
     
     return render_template('words/add_words.html', **ctx)
@@ -338,9 +376,19 @@ def history(word_data, language_code=None):
 
 @words.route('/search', methods=['GET', 'POST'])
 def search(form_class=SearchForm):
+    page = request.args.get('page', 1)
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+
     form = form_class()
 
-    words = Word.query.order_by('word.id DESC').limit(4800).all()
+    words = Word.query.order_by('word.id DESC')\
+                      .slice((page - 1)*PER_PAGE, page*PER_PAGE).all()
+    words_count = Word.query.order_by('word.id DESC').count()
 
     if form.validate_on_submit() or request.args.get('q'):
         if request.args.get('q') and not form.word.data:
@@ -354,14 +402,29 @@ def search(form_class=SearchForm):
                                     language_code=word.language.code,
                                     word_data=word_data))
         words = Word.query.filter(Word.word.like('%{0}%'.format(word_data)))
+        words_count = words.count()
+        words = words.slice((page - 1)*PER_PAGE, page*PER_PAGE)
+
     else:
         if request.method == 'POST':
             flash(gettext(u'Please enter the word you are looking for.'), 'error')
+            
+
+    pagination = Pagination(page, PER_PAGE, words_count)
 
     ctx = {
         'form': form,
         'words': words,
         'search_form': form,
+        'pagination': pagination,
     }
     
     return render_template('words/search_words.html', **ctx)
+
+
+@words.route('/statistics', methods=['GET', 'POST'])
+def statistics():
+    ctx = {
+    }
+
+    return render_template('words/statistics.html', **ctx)

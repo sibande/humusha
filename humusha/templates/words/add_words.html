@@ -3,6 +3,7 @@
 {% block content %}
 
   <h1>{{ gettext('Add') }}</h1>
+  <hr />
   
   <form action="{{ url_for("words.add") }}" method="POST">
     {{ form.csrf_token }}
@@ -16,4 +17,10 @@
   
   {% include "words/_words_display.html" %}
   
+  <div class="row-fluid">
+    <div class="pull-right">
+      {{ render_pagination(pagination) }}
+    </div>
+  </div>
+
 {% endblock %}

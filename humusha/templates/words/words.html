@@ -7,6 +7,12 @@
   <hr />
 
   {% include "words/_words_display.html" %}
+  
+  <div class="row-fluid">
+    <div class="pull-right">
+      {{ render_pagination(pagination) }}
+    </div>
+  </div>
 
 {% endblock %}
 

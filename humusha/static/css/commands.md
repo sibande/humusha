@@ -1,1 +1,1 @@
-lessc /home/src/bootstrap/less/bootstrap.less > zabalaza/static/css/bootstrap.css
+lessc /home/src/bootstrap/less/bootstrap.less > humusha/static/css/bootstrap.css

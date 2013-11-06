@@ -1,2 +1,2 @@
-from zabalaza import app
+from humusha import app
 app.run(debug=True)

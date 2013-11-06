@@ -1,9 +1,11 @@
 from sqlalchemy import or_
 
-from flaskext.babel import gettext, ngettext, lazy_gettext as _
+from flask_babel import gettext, ngettext, lazy_gettext as _
 from flask import session
-from flask_wtf import Form, TextField, Required as BaseRequired, SubmitField, \
-    ValidationError, SelectField, HiddenField, FieldList, IntegerField
+
+from flask_wtf import Form
+from wtforms.fields import TextField, SubmitField, SelectField, HiddenField, FieldList, IntegerField
+from wtforms.validators import Required as BaseRequired, ValidationError
 
 from .models import Word, Part, WordPart, Relation, WordRelation, Language,\
     Translation
