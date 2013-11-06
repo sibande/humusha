@@ -1,15 +1,15 @@
 
 import string
 
-from flask import Flask, session, request_started
+from flask import Flask, session, request_started, request, url_for
 
 from flask_sqlalchemy import SQLAlchemy, Session
-from flaskext.babel import gettext, ngettext, lazy_gettext
-from flaskext.babel import Babel
+from flask_babel import gettext, ngettext, lazy_gettext
+from flask_babel import Babel
 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from zabalaza.utils.history_meta import versioned_session
+from humusha.utils.history_meta import versioned_session
 
 app = Flask(__name__)
 
@@ -39,11 +39,17 @@ def datetimeformat(value, format='%Y-%m-%d at %H:%M'):
 
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
-# Views
-import zabalaza.views
+def url_for_other_page(page):
+    args = request.view_args.copy()
+    args['page'] = page
+    return url_for(request.endpoint, **args)
+app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
-from zabalaza.apps.words.models import Language, Word
-from zabalaza.apps.words.forms import SearchForm
+# Views
+import humusha.views
+
+from humusha.apps.words.models import Language, Word
+from humusha.apps.words.forms import SearchForm
 from apps.words.views import words as words
 
 # Blueprints

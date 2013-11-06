@@ -1,1 +1,1 @@
-uwsgi -s /tmp/zabalaza.sock -w zabalaza:app -H ../env/python-flask/ --catch-exceptions
+uwsgi -s /tmp/humusha.sock -w humusha:app -H ../env/python-flask/ --catch-exceptions
