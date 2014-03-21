@@ -33,28 +33,24 @@
     {# END SEARCH FORM #}
   </div> 
 
-
   <div class="row">
-    <div class="row">
-      <div class="large-12 columns">
-        {# START BROWSE #}
-        
-        <div class="large-1 columns">
-          <strong>{{ gettext("Browse") }}:</strong>
-        </div>
-        
-        <div class="large-11 columns">
-          {% for ascii_letter in ascii_letters %}
-            <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
-            <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
-          {% endfor %}
-        </div>
-      </div>
+    {# START BROWSE #}
+
+    
+    <div class="large-1 columns">
+      <strong>{{ gettext("Browse") }}:</strong>
+    </div>
+    
+    <div class="large-11 columns">
+      {% for ascii_letter in ascii_letters %}
+        <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
+        <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
+      {% endfor %}
     </div>
 
     {# END BROWSE #}
   </div>
-
+  
   <br />
   <br />
 
