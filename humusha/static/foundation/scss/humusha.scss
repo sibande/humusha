@@ -1,0 +1,20 @@
+#thesaurus ._parts ._header, #translations ._header {
+		background-color: #f0f0f0;
+		border-bottom: 1px solid #d0d0d0;
+		border-top: 1px solid #d0d0d0;
+		margin: 5px 0px;
+
+}
+
+#thesaurus ._parts ._header:hover, #translations ._header:hover { 
+
+		cursor: pointer;
+}
+
+#translations ._header {
+		padding-top: 5px;
+}
+
+#translations ._header input, #translations ._header select {
+		margin: 0px;
+}
