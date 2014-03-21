@@ -97,7 +97,6 @@ class Word(Versioned, db.Model):
         """Gets featured words for the homepage carousel"""
         _featured = dict()
         if 'languages' not in session:
-            print 'hello world'
             return _featured
         for language_id, label in session['languages'].items():
             words = self.featured(language_id, limit, min_count)
