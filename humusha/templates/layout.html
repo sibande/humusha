@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}" type="text/css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/humusha.css') }}" />
   <head>
     <title>{% block title %}{% endblock %} - Humusha</title>
   </head>
@@ -33,74 +35,52 @@
       </div>
     {% endmacro %}
 
-    
-    <div class="container-fluid">
-      {# START HEADER #}
-      <div class="row-fluid">
+    <div class="row">
+      <div class="large-9 columns">
+        <div id="home"><a href="{{ url_for("home") }}">Humusha</a></div>
         <br />
-        <div class="row-fluid show-grid">
-          <div class="span8">
-            <div class="row-fluid">
-              <div class="span9">
-                {% include "_global_search.html" %}
-                
-                <div class="row-fluid">
-                  <div class="span2">
-                    <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
-                  </div>
-                  <div class="span2">
-                    <a href="{{ url_for("words.add") }}">{{ gettext('Add') }}</a>
-                  </div>
-                  <div class="span2">
-                    <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a>
-                  </div>
-                  <div class="span2">
-                    <a href="{{ url_for("words.statistics") }}">{{ gettext('Statistics') }}</a>
-                  </div>
-                  <div class="span2">
-                    {{ gettext('Activity') }}
-                  </div>
-                  <div class="span2">
-                    {{ gettext('Translate') }}
-                  </div>
-                </div>
-                
-              </div>
-              <div class="span3">
-                <div>
-                  {{ render_language_form("app_language") }}
-                </div>
-                <div>
-                  <br />
-                  {{ render_language_form("language") }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="span4">
-            <div id="home"><a href="{{ url_for("home") }}">Humusha</a></div>
-            <br />
-            <div>The free multi-language dictionary and thesaurus that anyone can edit</div>
-          </div>
-        </div>
+        <div>The free multi-language dictionary and thesaurus that anyone can edit</div>
       </div>
       
-      {# END HEADER #}
-    </div>
-
-    <div  id="main">
-      <div class="container-fluid">
-        {# START BODY #}
-        
-	{% block content %}{% endblock %}
-        
-        {# END BODY #}
+      <div class="large-3 columns">
+        <br />
+        <br />
+        <br />
+        <div class="row">
+          <div class="large-4 columns">
+            <a href="{{ url_for("words.index") }}">{{ gettext('Words') }}</a>
+          </div>
+          <div class="large-4 columns">
+            <a href="{{ url_for("words.add") }}">{{ gettext('Add') }}</a>
+          </div>
+          <div class="large-4 columns"> 
+            <a href="{{ url_for("words.search") }}">{{ gettext('Search') }}</a> 
+          </div> 
+          {# <div class="large-2 columns">  #}
+          {#   {{ gettext('Statistics') }}{\# <a href="{{ url_for("words.statistics") }}">{{ gettext('Statistics') }}</a>  #\} #}
+          {# </div>  #}
+          {# <div class="large-2 columns">  #}
+          {#   {{ gettext('Activity') }}  #}
+          {# </div>  #}
+          {# <div class="large-2 columns">  #}
+          {#   {{ gettext('Translate') }}  #}
+          {# </div>  #}
+        </div>
       </div>
     </div>
+    {# END HEADER #}
 
-    <div class="container-fluid main">
-      {# START FOOTER #}
+    
+    {# START BODY #}
+    
+    {% block content %}{% endblock %}
+        
+    {# END BODY #}
 
+    <div class="row">
+    {# START FOOTER #}
+
+      <div class="large-12">
       <br />
       <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
         <img alt="Creative Commons License" style="border-width:0"
@@ -113,6 +93,7 @@
              Commons Attribution-ShareAlike 3.0 Unported License</a>.
              
              {# END FOOTER #}
+      </div>
     </div>
 
 
@@ -202,11 +183,11 @@
     </div>
 
     #}
-    <script src="{{ url_for('static', filename='js/jquery-1.7.1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/jquery.easing.1.3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-1.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.easing.1.3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery.placeholder.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/underscore-min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/backbone-min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/default.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/jquery.placeholder.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-carousel.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-dropdown.js') }}"></script>
   </body>
 </html>

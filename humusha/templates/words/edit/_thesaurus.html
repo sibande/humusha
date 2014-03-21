@@ -1,0 +1,169 @@
+{% for thesaurus_part in thesaurus_parts %}
+  <div class="row _parts">
+    <div class="large-12 columns _header">
+      <h4>{{ thesaurus_part.label }}</h4>
+    </div>
+    
+    <div class="_content">
+
+      <div class="large-12 columns">
+        <div class="row">
+          <div class="large-3 columns">
+            <h6>Ungrouped Translations</h6>
+          </div>
+
+          <div class="large-4 columns">
+            {# START ADD WORD WITHOUT CONTEXT #}
+            <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+              {{ word_relation_form.csrf_token }}
+              {{ word_relation_form.part(value=thesaurus_part.id) }}
+              <div class="row collapse"> 
+                <div class="large-8 columns">
+                  {{ word_relation_form.word.append_entry() }}
+                </div>
+                <div class="large-4 columns">
+
+                  {{ word_relation_form.submit(class="button postfix") }}
+                </div>
+              </div>
+            </form>
+            {# END ADD WORD WITHOUT CONTEXT #}
+          </div>
+          <div class="large-5 columns">&nbsp;</div>
+        </div>
+        <ul>
+          {# START THESAURUS WORDS WITHOUT CONTEXT #}
+          {% for word_relation in word.relations(thesaurus_part.id) %}
+            <li>
+              {% if not word_relation.word_id_1 == word.id %}
+                {{ word_relation.word_1.word }}
+              {% else %}
+                {{ word_relation.word_2.word }}
+              {% endif %}
+            </li>
+          {% endfor %}
+          {# START THESAURUS WORDS WITHOUT CONTEXT #}
+        </ul>
+      </div>
+
+
+
+
+
+      <div class="_content">
+        {# START THESAURUS CONTEXT #}
+        <div class="large-12 columns">
+          
+          <div class="row">
+            <div class="large-3 columns">
+              <h6>Grouped Translations</h6>
+            </div>
+            <div class="large-6 columns">
+              {# START ADD THESAURUS CONTEXT #}
+              <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+                {{ definition_form.part(value=thesaurus_part.id) }}
+                <div class="row collapse"> 
+                  <div class="large-10 columns">
+                    {{ definition_form.definition() }}
+                  </div>
+                  <div class="large-2 columns">
+                    {{ definition_form.submit(class="button postfix") }}
+                  </div>
+                </div>
+              </form>
+              {# END ADD THESAURUS CONTEXT #}
+            </div>
+            <div class="large-3 columns">&nbsp;</div>
+          </div>
+
+
+
+
+
+          <ol>
+            {% for definition in word.definitions(thesaurus_part.id) %}
+              <div class="row">
+                <div class="large-8 columns">
+                  
+                  {% if not request.view_args.definition_data == definition.id %}
+	            <li>
+	              {{ definition.definition }}
+                      &nbsp;&nbsp; - &nbsp;
+                      <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, definition_data=definition.id) }}">edit</a>
+                    </li>
+                  {% else %}
+	            <div class="row">
+                      <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+                        {{ definition_form.definition_id(value=definition.id) }}
+                        {{ definition_form.part(value=thesaurus_part.id) }}
+                        <div class="row collapse"> 
+                          <div class="large-10 columns">
+                            {{ definition_form.definition(value=definition.definition) }}
+                          </div>
+                          <div class="large-2 columns">
+                            {{ definition_form.submit(value="Update", class="button postfix") }}
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  {% endif %}
+
+                  <div class="row">
+                    {# START DISPLAY CONTEXT WORDS #}
+                    <ul>
+                      {% for word_relation in word.relations(thesaurus_part.id, definition.id) %}
+                        <li>
+                          {% if not word_relation.word_id_1 == word.id %}
+                            {{ word_relation.word_1.word }}
+                          {% else %}
+                            {{ word_relation.word_2.word }}
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    {# END DISPLAY CONTEXT WORDS #}
+                  </div>
+                  
+
+                  
+                </div>
+                <div class="large-1 columns">
+                  &nbsp;
+                </div>
+                <div class="large-3 columns">
+                  <div class="row">
+                    {# START EDIT CONTEXT WORDS #}
+                    <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+                      {{ word_relation_form.csrf_token }}
+                      {{ word_relation_form.part(value=thesaurus_part.id) }}
+                      {{ definition_form.definition_id(value=definition.id) }}
+                      <div class="row collapse"> 
+                        <div class="large-8 columns">
+                          
+                          {{ word_relation_form.word.append_entry() }}
+                        </div>
+                        <div class="large-4 columns">
+                          
+                          {{ word_relation_form.submit(class="button postfix") }}
+                        </div>
+                      </div>
+                    </form>
+                    {# END EDIT CONTEXT WORDS #}
+                  </div>
+                  
+                </div>
+
+              </div>
+              {# END THESAURUS CONTEXT #}
+            {% endfor %}
+          </ol>
+
+        </div>
+        {# END THESAURUS CONTEXT #}
+      </div>
+
+
+
+    </div>
+  </div>
+{% endfor %}

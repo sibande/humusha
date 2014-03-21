@@ -1,76 +1,71 @@
-
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-
-  <strong>Welcome!</strong> Use the search function below or read the help manual to get started<br />
-  <br />
-  <div class="row-fluid">
-    {# START SEARCH FORM #}
-
-    <form action="{{ url_for("words.search") }}" class="form-search" method="POST">
-      {{ search_form.csrf_token }}
-      {{ form.word(class="offset2 input-medium search-query input-xxlarge", placeholder="Search") }}
-      {{ form.submit(class="btn") }}
-      <br />
-      <span class="offset3">
-        (search, view, make corrections, expand and add new words)
-      </span>
-    </form>
-
-    {# END SEARCH FORM #}
-  </div>
   
-  <div class="row-fluid">
-    {# START BROWSE #}
-    
-    <div class="span1">
-      <strong>{{ gettext("Browse") }}:</strong>
+  <div class="row">
+    <div class="large-12 columns">
+      <hr />
+      <strong>Welcome!</strong> Use the search function below or read the help manual to get started<br />
+      <br />
     </div>
-    
-    <div class="span8">
-        {% for ascii_letter in ascii_letters %}
-          <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
-          <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
-        {% endfor %}
+  </div>
+
+  {# START SEARCH FORM #}
+  <div class="row">
+    <form action="{{ url_for("words.search") }}" class="clearfix" method="POST"> 
+      <div class="large-12 columns"> 
+        <div class="row collapse"> 
+          <div class="large-11 columns"> 
+            {{ search_form.csrf_token }} 
+            {{ form.word(placeholder="Search") }} 
+          </div> 
+          <div class="large-1 columns"> 
+            {{ form.submit(class="button postfix") }} 
+          </div> 
+        </div> 
+      </div> 
+      <div class="large-12 columns text-center"> 
+        (search, view, make corrections, expand and add new words)  
+        <hr /> 
+      </div> 
+      <br /> 
+    </form>  
+    {# END SEARCH FORM #}
+  </div> 
+
+
+  <div class="row">
+    <div class="row">
+      <div class="large-12 columns">
+        {# START BROWSE #}
+        
+        <div class="large-1 columns">
+          <strong>{{ gettext("Browse") }}:</strong>
+        </div>
+        
+        <div class="large-11 columns">
+          {% for ascii_letter in ascii_letters %}
+            <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
+            <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
     {# END BROWSE #}
   </div>
-  
-  <div class="row-fluid" id="home-featured">
-    {# START LANGUAGE FEATURED #}
-    
-    <div class="span9">
 
-      <div id="home-featured-data" class="carousel slide"
-        style="position: !important relative;">
-        {% include "_featured.html" %}
+  <br />
+  <br />
 
-        <!-- <a class="carousel-control left" href="#home-featured-data" data-slide="prev">&lsaquo;</a> -->
-        <!-- <a class="carousel-control right" href="#home-featured-data" data-slide="next">&rsaquo;</a> -->
+  <br />
+  <br />
 
-      </div>
-      
-    </div>
+  <br />
+  <br />
 
-    <div class="span3">
-      <ul>
-        {% for language in languages %}
-          <div>
-            <li>
-              <a class="" style="line-height:1.8em !important;" href="{{ url_for("words.index", language_code=language.code) }}">{{ language.label }}</a>
-              &nbsp;&nbsp;&nbsp;
-            </li>
-          </div>
-          {% endfor %}
-      </ul>
-    </div>
-    
-    
-    {# END LANGUAGE FEATURED #}
-  </div>
-  
+  <br />
+  <br />
 
 
 
@@ -101,16 +96,16 @@
   </div>
 
   <div class="container">
-      <h3>{{ gettext("Browse") }}</h3>
+    <h3>{{ gettext("Browse") }}</h3>
 
-      <div class="container">
-        <div class="large center">
-          {% for ascii_letter in ascii_letters %}
-            <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
-            <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
-          {% endfor %}
-        </div>
+    <div class="container">
+      <div class="large center">
+        {% for ascii_letter in ascii_letters %}
+          <a href="{{ url_for("words.browse", starts_with=ascii_letter) }}">{{ ascii_letter }}</a>
+          <a href="{{ url_for("words.browse", starts_with=ascii_letter|upper) }}">{{ ascii_letter|upper }}</a>
+        {% endfor %}
       </div>
+    </div>
 
   </div>
 
@@ -130,7 +125,7 @@
     </ul>
     
   </div>
-    #}
+  #}
   
 {% endblock %}
 

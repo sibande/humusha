@@ -1,0 +1,82 @@
+{# START DEFINITIONS #}
+<div class="row">
+  {% for definition in word_part.word.definitions(word_part.part_id) %}
+    {# START SINGLE DEFINITION #}
+    <div class="large-11 columns">
+      {% if not request.view_args.definition_data == definition.id %}
+        <ul>
+	  {# START DISPLAY DEFINITION #}
+          <li>
+            {{ definition.definition }}
+            {#	      <div class="right">
+	    <a href="{{ url_for("edit_word", word_data=word.word, definition_data=definition.id) }}">edit</a>
+	    </div>   
+            #}
+          </li>
+          <ol>
+            {% for usage_example in definition.usage_examples %}
+	      <li>
+                <em>{{ usage_example.sentence }}</em>
+              </li>
+	    {% endfor %}
+          </ol>
+          {# END DISPLAY DEFINITION #}
+        </ul>
+      {% else %}
+        {# START EDIT DEFINITION #}
+        <div class="row">
+          <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+            {{ definition_form.part(value=word_part.part_id) }}
+            <div class="large-6 columns">
+              <label>{{ definition_form.definition.label }}</label>
+              {{ definition_form.definition_id(value=definition.id) }}
+              {{ definition_form.definition(value=definition.definition, class="span11") }}
+            </div>
+            <div class="large-6 columns">
+              {# START EDIT USAGE EXAMPLE/SENTENCE #}
+              <label>{{ usage_form.sentence.label }}</label>
+              {% for usage_example in definition.usage_examples %}
+		{{ usage_form.sentence.append_entry(usage_example.sentence) }}
+                {{ usage_form.sentence_id.append_entry(usage_example.id) }}
+	      {% endfor %}
+              {{ usage_form.sentence.append_entry() }}
+              <div class=" large-2">
+                {{ definition_form.submit(value="Update", class="button postfix") }}
+              </div>
+              {# END EDIT USAGE EXAMPLE/SENTENCE #}
+            </div>
+          </form>
+        </div>
+        {# END EDIT DEFINITION #}
+      {% endif %}
+    </div>
+    <div class="large-1 columns text-right">
+      <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, definition_data=definition.id) }}">edit</a>
+    </div>
+    {# END SINGLE DEFINITION #}
+  {% endfor %}
+</div>
+{# END DEFINITIONS #}
+
+{# START ADD DEFINITION #}
+<div class="{% if request.view_args.definition_data %}hide{% else %}row{% endif %}">
+  <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+    {{ definition_form.part(value=word_part.part_id) }}
+    <div class="large-6 columns">
+      <label>{{ definition_form.definition.label }}</label>
+      {{ definition_form.definition(class="span-10") }}
+    </div>
+    
+    <div class="large-6 columns">
+      
+      <label>{{ usage_form.sentence.label }}</label>
+      {{ usage_form.sentence.append_entry() }}
+      {{ usage_form.sentence.append_entry() }}
+      <div class=" large-2">
+        {{ definition_form.submit(class="button postfix") }}
+      </div>
+    </div>
+    
+  </form>
+</div>
+{# END ADD DEFINITION #}

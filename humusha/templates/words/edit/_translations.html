@@ -1,0 +1,199 @@
+<div class="row">
+  <div class="large-12 columns _header">
+    <div class="row">
+      <div class="large-8 columns">
+        <h4 class="no-margin">{{ translation_part.label }}</h4>
+      </div>
+      <div class="large-4 columns">
+        <form class="form-inline" action="{{ url_for("words.translation_language", language_code=word.language.code, word_data=word.word) }}" method="POST">
+          {{ translation_form.word_id(value=word.id) }}
+          {{ translation_form.part_id(value=translation_part.id) }}
+          <div class="row collapse"> 
+            <div class="large-8 columns">
+              {{ translation_form.language_id }}
+            </div>
+            <div class="large-4 columns">
+              {{ translation_form.submit(class="button postfix") }}
+            </div>
+          </div>
+        </form>
+        
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row _content">
+  
+    <div class="large-12 columns">
+      {# START TRANSLATION LANGUAGES #}
+      {% for translation in translation_part.translation_languages(word.id) %}
+        <div class="large-12 columns">
+          <h5>{{ translation.language.label }}</h5>
+        </div>
+
+
+        <div class="large-12 columns">
+          {# START DISPLAY WORDS WITHOUT CONTEXT #}
+          
+          
+          <div class="row">
+            <div class="large-3 columns">
+              <h6>Ungrouped Translations</h6>
+            </div>
+            <div class="large-4 columns">
+              {# START ADD WORDS WITHOUT CONTEXT #}
+              <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+                {{ word_relation_form.csrf_token }}
+                {{ word_relation_form.part(value=translation_part.id) }}
+                {{ word_relation_form.translation_id(value=translation.id) }}
+                <div class="row collapse"> 
+                  <div class="large-8 columns">
+                    {{ word_relation_form.word.append_entry() }}
+                  </div>
+                  <div class="large-4 columns">
+                    {{ word_relation_form.submit(class="button postfix") }}
+                  </div>
+
+                </div>
+              </form>
+              {# END ADD WORDS WITHOUT CONTEXT #}
+            </div>
+            <div class="large-5 columns">&nbsp;</div>
+          </div>
+
+
+          
+          <ul>
+            {% for word_relation in word.relations(translation_part.id, translation_id=translation.id) %}
+              <li>
+                {% if not word_relation.word_id_1 == word.id %}
+                  {{ word_relation.word_1.word }}
+                {% else %}
+                  {{ word_relation.word_2.word }}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+          {# END DISPLAY WORDS WITHOUT CONTEXT #}
+        </div>
+
+
+        <div class="large-12 columns">
+          {# START TRANSLATION CONTEXT #}
+          
+          <div class="row">
+            <div class="large-3 columns">
+              <h6>Grouped Translations</h6>
+            </div>
+            <div class="large-6 columns">
+              {# START ADD WORDS CONTEXT #}
+              <form action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+                {{ definition_form.part(value=translation_part.id) }}
+                {{ definition_form.translation_id(value=translation.id) }}
+                <div class="row collapse"> 
+                  <div class="large-10 columns">
+
+                    {{ definition_form.definition(placeholder="translation context") }}
+                  </div>
+                  <div class="large-2 columns">
+                    {{ definition_form.submit(class="button postfix") }}
+                  </div>
+                </div>
+              </form>
+              {# END ADD WORDS CONTEXT #}
+            </div>
+            <div class="large-3 columns">&nbsp;</div>
+          </div>
+          
+          <div class="row">
+            <ol>
+              {% for definition in word.definitions(translation_part.id, translation_id=translation.id) %}
+                <div class="columns">
+                  <div class="row">
+
+                    <div class="large-8 columns">
+
+                      {% if not request.view_args.definition_data == definition.id %}
+	                <li>
+	                  {{ definition.definition }} 
+                          &nbsp;&nbsp; - &nbsp;
+                          <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, definition_data=definition.id) }}">edit</a>
+                        </li>
+                      {% else %}
+                        {# START EDIT TRANSLATION CONTEXT #}
+                        <div class="row">
+                          <form class="form-inline" action="{{ url_for("words.add_definition", language_code=word.language.code, word_data=word.word) }}" name="definition" method="POST">
+                            {{ definition_form.definition_id(value=definition.id) }}
+                            {{ definition_form.part(value=translation_part.id) }}
+                            {{ definition_form.translation_id(value=translation.id) }}
+                            <div class="row collapse"> 
+                              <div class="large-10 columns">
+                                
+                                {{ definition_form.definition(value=definition.definition) }}
+                              </div>
+                              <div class="large-2 columns">
+                                {{ definition_form.submit(value="Update", class="button postfix") }}
+                              </div>
+                            </div>                          
+                          </form>
+                        </div>
+                        {# END EDIT TRANSLATION CONTEXT #}
+                      {% endif %}
+                      <div class="row">
+                        {# START CONTEXT WORDS DISPLAY #}
+                        <ul>
+                          {% for word_relation in word.relations(translation_part.id, definition.id, translation_id=translation.id) %}
+                            <li>
+                              {% if not word_relation.word_id_1 == word.id %}
+                                {{ word_relation.word_1.word }}
+                              {% else %}
+                                {{ word_relation.word_2.word }}
+                              {% endif %}
+                            </li>
+                          {% endfor %}
+                        </ul>
+                        {# END CONTEXT WORDS DISPLAY #}
+                      </div>
+                      
+                      
+                      
+                    </div>
+                    <div class="large-1 columns">
+                      &nbsp;
+                    </div>
+                    <div class="large-3 columns">
+                      <div class="row">
+                        <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+                          {{ word_relation_form.csrf_token }}
+                          {{ word_relation_form.part(value=translation_part.id) }}
+                          {{ word_relation_form.translation_id(value=translation.id) }}
+                          {{ definition_form.definition_id(value=definition.id) }}
+                          <div class="row collapse"> 
+                            <div class="large-8 columns">
+                              {{ word_relation_form.word.append_entry() }}
+                            </div>
+                            <div class="large-4 columns">
+                              {{ word_relation_form.submit(class="button postfix") }}
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+              {% endfor %}
+            </ol>
+          </div>
+          
+          {# END TRANSLATION CONTEXT #}
+        </div>
+        
+        
+        {# ----------- #}
+      {% endfor %}
+    </div>
+    {# END TRANSLATION LANGUAGES #}
+  </div>
+</div>

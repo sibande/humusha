@@ -2,29 +2,40 @@
 {% block title %}Search{% endblock %}
 {% block content %}
 
-  <h1>{{ gettext('Search') }}</h1>
-  
-  <hr />
+  <div class="row">
+    <div class="large-12 columns">
+      <h1>{{ gettext('Search') }}</h1>
+      <hr />
+    </div>
+  </div>
 
-  <form action="{{ url_for("words.search") }}" class="form-search"
-        method="POST">
+  <div class="row">
+    <div class="large-12 columns">
+      <form action="{{ url_for("words.search") }}" class="form-search" method="POST">
+        {% if form.word.errors %}
+          <div class="notice">
+            {% for error in form.word.errors %}<div>{{ error|e }}</div>{% endfor %}
+          </div>
+        {% endif %}
+        {{ search_form.csrf_token }}{# {{ form.csrf }} #}
+        <div class="row collapse"> 
+          <div class="large-11 columns"> 
+            {{ form.word(class="span7 input-medium search-query") }}
+          </div>
+          <div class="large-1 columns"> 
+            {{ form.submit(class="button postfix") }}
+          </div>
+        </div>
+      </form>
+      <hr />
+    </div>
+  </div>
 
-    {% if form.word.errors %}
-      <div class="notice">
-        {% for error in form.word.errors %}<div>{{ error|e }}</div>{% endfor %}
-      </div>
-    {% endif %}
-    {{ search_form.csrf_token }}{# {{ form.csrf }} #}
-    {{ form.word(class="span7 input-medium search-query") }}
-    {{ form.submit(class="btn") }}
-  </form>
-  
-  <hr />
   
   {% include "words/_words_display.html" %}
   
-  <div class="row-fluid">
-    <div class="pull-right">
+  <div class="row">
+    <div class="large-12 columns">
       {{ render_pagination(pagination) }}
     </div>
   </div>

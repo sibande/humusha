@@ -1,22 +1,26 @@
 {# word heading for the view and edit pages (defaults to read mode) #}
 {% macro word_heading_render(view_mode="read") %}
-  <div class="row-fluid">
+  <div class="row">
 
-    <div class="span4">
+    <div class="large-4 columns">
       <h1><a href="{{ url_for("words.view", word_data=word.word) }}">{{ word.word }}</a></h1>
     </div>
-    <div class="span2 right caps">
+    <div class="large-2 columns">
+      <br />
+      <br />
       [{{ word.language.label }}]
     </div>
-    <div class="offset10 caps">
-      <div class="right">
+    <div class="large-offset-9 caps">
+      <div class="text-right">
+        <br />
+        <br />
         {% if not view_mode == "history" %}
           <a href="{{ url_for("words.history", language_code=word.language.code, word_data=word.word) }}">{{ gettext('History') }}</a> &nbsp;
         {% endif %}
         {% if not view_mode == "read" %}
-          <a href="{{ url_for("words.view", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Read-only mode') }}</a>
+          <a href="{{ url_for("words.view", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Read-only') }}</a>
         {% else %}
-          <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Edit mode') }}</a>
+          <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}">{{ gettext('Edit') }}</a>
         {% endif %}
       </div>
     </div>

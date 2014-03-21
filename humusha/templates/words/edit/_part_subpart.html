@@ -1,0 +1,62 @@
+<div class="row">
+  {% for part_type in word_part.part_types %}
+    <div class="large-2 columns">
+      <h5>{{ part_type.part.label }}</h5>
+    </div>
+    {% if part_type.part.relation.part_id %}
+      <div class="large-1 columns">
+        <em>{{ ngettext("of word", "of words", part_type.part.relation.limit) }}</em>
+      </div>
+      <div class="{% if part_type.part.relation.limit_reached(word.id) and not request.view_args.part_data == part_type.part.id %}hide{% else %}large-5 columns{% endif %}">
+        <form action="{{ url_for("words.relation", language_code=word.language.code, word_data=word.word) }}" method="POST">
+          {{ word_relation_form.csrf_token }}
+          <div class="large-9 columns">
+            <div class="hide relation-limit">{{ part_type.part.relation.limit }}</div>
+            {% if request.view_args.part_data == part_type.part.id %}
+              {# Edit type of speech related words #}
+              
+              {% for word_relation in word.relations(part_type.part.id) %}
+                {{ word_relation_form.word_relation.append_entry(word_relation.id) }}
+                {% if not word_relation.word_id_1 == word.id %}
+                  {{ word_relation_form.word.append_entry(word_relation.word_1.word) }}
+                {% else %}
+                  {{ word_relation_form.word.append_entry(word_relation.word_2.word) }}
+                {% endif %}
+              {% endfor %}
+              {# 0 for unrestricted word relations #}
+              {% if not part_type.part.relation.limit or loop.index < part_type.part.relation.limit %}
+                {{ word_relation_form.word.append_entry() }}
+              {% endif %}
+            {% else %}
+              {{ word_relation_form.word.append_entry() }}
+            {% endif %}
+            {{ word_relation_form.part(value=part_type.part.id) }}
+                                                                      </div>
+          <div class=" large-3 columns">
+            {{ word_relation_form.submit(class="button postfix") }}
+          </div>
+        </form>
+      </div>
+
+      {% if word.relations(part_type.part.id).count() and not request.view_args.part_data == part_type.part.id %}
+        <div class="large-8 columns">
+          {# Type of speech related words #}
+          {% for word_relation in word.relations(part_type.part.id) %}
+            <div class="large-2 columns">                  
+              {% if not word_relation.word_id_1 == word.id %}
+                {{ word_relation.word_1.word }}
+              {% else %}
+                {{ word_relation.word_2.word }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      
+      <div class="large-1 columns text-right">
+        <a href="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word, part_data=part_type.part.id) }}">edit</a>
+      </div>
+
+{% endif %}
+{% endfor %}
+</div>

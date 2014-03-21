@@ -1,0 +1,35 @@
+<div class="row">
+  <div class="large-2 columns">
+    <h4 class="no-margin">{{ word_part.part.label }}</h4>
+  </div>
+  <div class="large-4 columns">
+    <div class="row">
+      <form action="{{ url_for("words.edit", language_code=word.language.code, word_data=word.word) }}" method="POST">
+        {{ speech_part_form.csrf_token }}
+        {{ speech_part_form.parent_id(value=word_part.part.id) }}
+        {{ speech_part_form.language_id(value=word.language_id) }}
+        <div class="row collapse"> 
+          <div class="large-10 columns"> 
+
+            {{ speech_part_form.part(parent_id=word_part.part.id, class="") }}
+          </div>
+          <div class="large-2 columns"> 
+	    {{ speech_part_form.submit(class="button postfix") }}
+          </div> 
+        </div> 
+
+
+        {% if speech_part_form.errors and speech_part_form.parent_id.data|int == word_part.part.id %}
+          <div class="control-group error">
+            {% for field_errors in speech_part_form.errors if field_errors %}
+	      <span class="help-inline">{{ speech_part_form.errors[field_errors][0] }}</span><br />
+	    {% endfor %}
+          </div>
+        {% endif %}
+      </form>
+    </div>
+
+
+  </div>
+  <div class="large-6 columns">&nbsp;</div>
+</div>

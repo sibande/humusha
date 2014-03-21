@@ -2,14 +2,17 @@
 {% block title %}Words{% endblock %}
 {% block content %}
 
-  <h1>{{ gettext('Words') }}</h1>
-  
-  <hr />
+  <div class="row">
+    <div class="large-12 columns">
+      <h1>{{ gettext('Words') }}</h1>
+      <hr />
+    </div>
+  </div>
 
   {% include "words/_words_display.html" %}
   
-  <div class="row-fluid">
-    <div class="pull-right">
+  <div class="row">
+    <div class="text-right">
       {{ render_pagination(pagination) }}
     </div>
   </div>
